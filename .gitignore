@@ -1,0 +1,83 @@
+# ============================================================
+# Mantenimiento Predictivo con IA - .gitignore
+# ============================================================
+
+# -------------------- Python --------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+*.whl
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# -------------------- ML/Data --------------------
+# Datos crudos (muy pesados para Git)
+data/raw/*.txt
+data/raw/*.csv
+data/raw/*.zip
+data/processed/*.csv
+data/processed/*.pkl
+data/processed/*.parquet
+
+# Modelos entrenados (muy pesados)
+ml/trained_models/*.h5
+ml/trained_models/*.pkl
+ml/trained_models/*.joblib
+ml/trained_models/*.pt
+ml/trained_models/*.onnx
+*.h5
+*.hdf5
+
+# TensorFlow
+logs/
+tensorboard_logs/
+
+# -------------------- Node.js --------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# -------------------- Frontend Build --------------------
+frontend/build/
+frontend/dist/
+frontend/.cache/
+
+# -------------------- Environment --------------------
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# -------------------- IDE --------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# -------------------- Docker --------------------
+docker-compose.override.yml
+
+# -------------------- OS --------------------
+.DS_Store
+*.log

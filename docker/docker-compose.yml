@@ -1,0 +1,83 @@
+# ============================================================
+# Docker Compose - Mantenimiento Predictivo con IA
+# ============================================================
+# Levanta todos los servicios del proyecto:
+# - PostgreSQL (base de datos)
+# - Backend API (Node.js + Express)
+# - ML Service (Python Flask)
+# - Frontend (React)
+# ============================================================
+
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: pm_postgres
+    environment:
+      POSTGRES_DB: predictive_maintenance
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - pm_network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/Dockerfile.backend
+    container_name: pm_backend
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=predictive_maintenance
+      - DB_USER=postgres
+      - DB_PASSWORD=${DB_PASSWORD:-postgres123}
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    networks:
+      - pm_network
+
+  # ML Service (Flask)
+  ml_service:
+    build:
+      context: ./ml
+      dockerfile: ../docker/Dockerfile.ml
+    container_name: pm_ml_service
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./ml/trained_models:/app/trained_models
+      - ./data:/app/data
+    networks:
+      - pm_network
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/Dockerfile.frontend
+    container_name: pm_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - pm_network
+
+volumes:
+  postgres_data:
+
+networks:
+  pm_network:
+    driver: bridge

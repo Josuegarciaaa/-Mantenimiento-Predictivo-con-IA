@@ -1,0 +1,35 @@
+{
+    "model": {
+        "name": "lstm_rul_predictor",
+        "type": "lstm",
+        "sequence_length": 30,
+        "lstm_units": [64, 32],
+        "dropout_rate": 0.3,
+        "dense_units": 32
+    },
+    "training": {
+        "epochs": 100,
+        "batch_size": 64,
+        "learning_rate": 0.001,
+        "early_stopping_patience": 10,
+        "validation_split": 0.2
+    },
+    "data": {
+        "dataset_id": "FD001",
+        "rul_cap": 125,
+        "scaler_type": "standard",
+        "test_split": 0.2
+    },
+    "features": {
+        "rolling_windows": [5, 10, 20],
+        "use_rate_of_change": true,
+        "use_degradation_indicator": true,
+        "selected_sensors": [2, 3, 4, 7, 8, 9, 11, 12, 13, 14, 15, 17, 20, 21]
+    },
+    "paths": {
+        "raw_data": "../../data/raw",
+        "processed_data": "../../data/processed",
+        "trained_models": "../trained_models",
+        "logs": "../logs"
+    }
+}
