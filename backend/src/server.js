@@ -31,11 +31,13 @@ if (process.env.NODE_ENV !== 'test') {
     app.use(morgan('dev'));
 }
 
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 10000
-});
-app.use('/api/', limiter);
+if (process.env.NODE_ENV === 'production') {
+    const limiter = rateLimit({
+        windowMs: 15 * 60 * 1000,
+        max: 1000
+    });
+    app.use('/api/', limiter);
+}
 
 const authRoutes = require('./routes/auth');
 const { verifyToken } = require('./middleware/authMiddleware');
