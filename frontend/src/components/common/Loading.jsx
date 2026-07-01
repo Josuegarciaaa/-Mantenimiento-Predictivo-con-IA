@@ -1,11 +1,8 @@
-/**
- * Loading.jsx
- * ===========
- * Componente de loading/spinner reutilizable.
- */
-
-// Implementation pending
-
-export default function Loading() {
-    return null;
+export default function Loading({ text = 'Cargando...' }) {
+    return (
+        <div className="loading-overlay">
+            <div className="loading-spinner"></div>
+            <span>{text}</span>
+        </div>
+    )
 }

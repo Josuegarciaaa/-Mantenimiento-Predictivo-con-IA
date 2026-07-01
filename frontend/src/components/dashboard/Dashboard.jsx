@@ -1,17 +1,140 @@
-/**
- * Dashboard.jsx
- * =============
- * Componente principal del dashboard de mantenimiento predictivo.
- * Muestra resumen de salud de equipos, alertas activas y KPIs.
- */
+import { useNavigate } from 'react-router-dom'
+import RULGauge from '../charts/RULGauge.jsx'
+import './Dashboard.css'
 
-// Implementation pending
-// Componentes planificados:
-// - HealthOverview: Resumen de salud de todos los equipos
-// - AlertPanel: Panel de alertas activas
-// - KPICards: Tarjetas de indicadores clave
-// - EquipmentGrid: Grid de equipos con su estado
+function getRiskLevel(rul) {
+    if (rul <= 15) return 'critical'
+    if (rul <= 30) return 'high'
+    if (rul <= 50) return 'medium'
+    return 'low'
+}
 
-export default function Dashboard() {
-    return null;
+export default function Dashboard({ summary, engines = [], alerts = [], onAcknowledgeAlert }) {
+    const navigate = useNavigate()
+
+    if (!summary) return null
+
+    const { engines: engineStats, alerts: alertStats, average_rul } = summary
+
+    return (
+        <div className="dashboard fade-in">
+            <div className="grid-4 dashboard-kpis">
+                <div className="kpi-card kpi-card-primary">
+                    <div className="kpi-label">Total equipos</div>
+                    <div className="kpi-value">{engineStats.total}</div>
+                    <div className="kpi-sub">En linea de produccion</div>
+                </div>
+                <div className="kpi-card kpi-card-healthy">
+                    <div className="kpi-label">Operativos</div>
+                    <div className="kpi-value">{engineStats.healthy}</div>
+                    <div className="kpi-sub">Estado saludable</div>
+                </div>
+                <div className="kpi-card kpi-card-warning">
+                    <div className="kpi-label">En alerta</div>
+                    <div className="kpi-value">{engineStats.warning + engineStats.critical}</div>
+                    <div className="kpi-sub">{engineStats.critical} criticos, {engineStats.warning} advertencia</div>
+                </div>
+                <div className="kpi-card kpi-card-secondary">
+                    <div className="kpi-label">RUL promedio</div>
+                    <div className="kpi-value">{average_rul}</div>
+                    <div className="kpi-sub">Ciclos restantes (prom.)</div>
+                </div>
+            </div>
+
+            <div className="grid-2 dashboard-main">
+                <div className="card">
+                    <div className="card-header">
+                        <span className="card-title">Estado de equipos</span>
+                        <span className="card-title" style={{ opacity: 0.5 }}>{engines.length} registrados</span>
+                    </div>
+                    <div className="engine-grid">
+                        {engines.map(engine => {
+                            const risk = engine.last_prediction_rul !== null
+                                ? getRiskLevel(engine.last_prediction_rul)
+                                : 'low'
+                            return (
+                                <div
+                                    key={engine.id}
+                                    className="engine-card"
+                                    onClick={() => navigate(`/engines/${engine.id}`)}
+                                >
+                                    <div className="engine-card-header">
+                                        <div className="engine-card-info">
+                                            <span className={`status-dot status-dot-${engine.status}`}></span>
+                                            <div>
+                                                <div className="engine-card-name">{engine.name}</div>
+                                                <div className="engine-card-id">{engine.engine_id}</div>
+                                            </div>
+                                        </div>
+                                        <span className={`badge badge-${engine.status}`}>
+                                            {engine.status}
+                                        </span>
+                                    </div>
+                                    {engine.status !== 'maintenance' && engine.last_prediction_rul !== null && (
+                                        <RULGauge
+                                            rul={engine.last_prediction_rul}
+                                            riskLevel={risk}
+                                        />
+                                    )}
+                                    {engine.status === 'maintenance' && (
+                                        <div className="engine-maintenance-label">En mantenimiento</div>
+                                    )}
+                                    <div className="engine-card-footer">
+                                        <span>{engine.total_cycles} ciclos</span>
+                                        <span>{engine.location}</span>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+
+                <div className="card dashboard-alerts-panel">
+                    <div className="card-header">
+                        <span className="card-title">Alertas activas</span>
+                        <span className={`badge ${alertStats.active > 0 ? 'badge-critical' : 'badge-healthy'}`}>
+                            {alertStats.active}
+                        </span>
+                    </div>
+                    <div className="dashboard-alerts-list">
+                        {alerts.filter(a => !a.is_acknowledged).length === 0 && (
+                            <div className="empty-state">
+                                <div className="empty-state-text">Sin alertas activas</div>
+                            </div>
+                        )}
+                        {alerts.filter(a => !a.is_acknowledged).slice(0, 6).map((alert, i) => {
+                            const typeLabels = {
+                                critical: 'Critica',
+                                warning: 'Advertencia',
+                                maintenance_due: 'Mantenimiento',
+                                info: 'Info'
+                            }
+                            const typeStyles = {
+                                critical: 'badge-critical',
+                                warning: 'badge-warning',
+                                maintenance_due: 'badge-maintenance',
+                                info: 'badge-info'
+                            }
+                            return (
+                                <div key={alert.id} className="dashboard-alert-item fade-in" style={{ animationDelay: `${i * 80}ms` }}>
+                                    <div className="dashboard-alert-top">
+                                        <span className={`badge ${typeStyles[alert.type] || 'badge-info'}`}>
+                                            {typeLabels[alert.type] || alert.type}
+                                        </span>
+                                        <button
+                                            className="btn btn-sm btn-secondary"
+                                            onClick={() => onAcknowledgeAlert && onAcknowledgeAlert(alert.id)}
+                                        >
+                                            Reconocer
+                                        </button>
+                                    </div>
+                                    <p className="dashboard-alert-msg">{alert.message}</p>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
 }

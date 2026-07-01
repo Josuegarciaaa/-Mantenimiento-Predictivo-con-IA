@@ -1,18 +1,11 @@
-/**
- * server.js
- * =========
- * Entry point del servidor API REST.
- * Configura Express, middleware y rutas.
- */
-
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const errorHandler = require('./middleware/errorHandler');
 require('dotenv').config({ path: './config/.env' });
 
-// Import routes
 const predictionRoutes = require('./routes/predictions');
 const engineRoutes = require('./routes/engines');
 const sensorRoutes = require('./routes/sensors');
@@ -23,33 +16,26 @@ const healthRoutes = require('./routes/health');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// ==================== Middleware ====================
-
-// Seguridad
 app.use(helmet());
 
-// CORS
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Logging
-app.use(morgan('combined'));
+if (process.env.NODE_ENV !== 'test') {
+    app.use(morgan('dev'));
+}
 
-// Rate limiting
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,  // 15 minutos
-    max: 100                    // máx 100 requests por ventana
+    windowMs: 15 * 60 * 1000,
+    max: 200
 });
 app.use('/api/', limiter);
-
-// ==================== Routes ====================
 
 app.use('/api/predictions', predictionRoutes);
 app.use('/api/engines', engineRoutes);
@@ -58,13 +44,19 @@ app.use('/api/alerts', alertRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/health', healthRoutes);
 
-// Root endpoint
+const store = require('./services/dataStore');
+app.get('/api/dashboard', (req, res) => {
+    const summary = store.getDashboardSummary();
+    res.json({ success: true, data: summary });
+});
+
 app.get('/', (req, res) => {
     res.json({
         name: 'Predictive Maintenance API',
         version: '1.0.0',
         status: 'running',
         endpoints: {
+            dashboard: '/api/dashboard',
             predictions: '/api/predictions',
             engines: '/api/engines',
             sensors: '/api/sensors',
@@ -75,30 +67,18 @@ app.get('/', (req, res) => {
     });
 });
 
-// ==================== Error Handling ====================
-
-// 404 handler
 app.use((req, res) => {
     res.status(404).json({
-        error: 'Not Found',
-        message: `Route ${req.originalUrl} not found`
+        success: false,
+        error: { message: `Ruta ${req.originalUrl} no encontrada` }
     });
 });
 
-// Global error handler
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(err.status || 500).json({
-        error: err.message || 'Internal Server Error',
-        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-    });
-});
-
-// ==================== Start Server ====================
+app.use(errorHandler);
 
 app.listen(PORT, () => {
-    console.log(` Predictive Maintenance API running on port ${PORT}`);
-    console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`API corriendo en puerto ${PORT}`);
+    console.log(`Entorno: ${process.env.NODE_ENV || 'development'}`);
 });
 
 module.exports = app;
