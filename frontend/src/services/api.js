@@ -78,4 +78,9 @@ export const reportsAPI = {
     getSummary: () => api.get('/reports/summary')
 }
 
+export const settingsAPI = {
+    getModel: () => api.get('/settings/model'),
+    updateModel: (modelType) => api.post('/settings/model', { modelType })
+}
+
 export default api

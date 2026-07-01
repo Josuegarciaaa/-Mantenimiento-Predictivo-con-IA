@@ -50,6 +50,8 @@ app.use('/api/alerts', verifyToken, alertRoutes);
 app.use('/api/reports', verifyToken, reportRoutes);
 
 const store = require('./services/dataStore');
+const mlBridge = require('./services/mlBridge');
+
 app.get('/api/dashboard', verifyToken, async (req, res) => {
     try {
         const summary = await store.getDashboardSummary();
@@ -57,6 +59,23 @@ app.get('/api/dashboard', verifyToken, async (req, res) => {
     } catch (err) {
         res.status(500).json({ success: false, error: { message: err.message } });
     }
+});
+
+app.get('/api/settings/model', verifyToken, (req, res) => {
+    res.json({ success: true, data: { modelType: mlBridge.getModelType() } });
+});
+
+app.post('/api/settings/model', verifyToken, (req, res) => {
+    const { modelType } = req.body;
+    if (!['auto', 'rf', 'lstm'].includes(modelType)) {
+        return res.status(400).json({ success: false, error: { message: 'Tipo de modelo invalido. Debe ser auto, rf o lstm.' } });
+    }
+    mlBridge.setModelType(modelType);
+    
+    // Notificar a todos los clientes por Socket.io que cambio el modelo
+    io.emit('model_changed', { modelType });
+
+    res.json({ success: true, data: { modelType } });
 });
 
 app.get('/', (req, res) => {

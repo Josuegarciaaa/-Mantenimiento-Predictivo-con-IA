@@ -11,6 +11,7 @@ const initialState = {
     alerts: [],
     dashboard: null,
     selectedEngine: null,
+    activeModelType: 'auto',
     isLoading: false,
     error: null
 }
@@ -39,7 +40,8 @@ function appReducer(state, action) {
                 predictions: [],
                 alerts: [],
                 dashboard: null,
-                selectedEngine: null
+                selectedEngine: null,
+                activeModelType: 'auto'
             }
         case 'SET_LOADING':
             return { ...state, isLoading: action.payload }
@@ -55,6 +57,8 @@ function appReducer(state, action) {
             return { ...state, alerts: action.payload, isLoading: false }
         case 'SET_SELECTED_ENGINE':
             return { ...state, selectedEngine: action.payload, isLoading: false }
+        case 'SET_MODEL_TYPE':
+            return { ...state, activeModelType: action.payload }
         case 'UPDATE_ALERT':
             return {
                 ...state,

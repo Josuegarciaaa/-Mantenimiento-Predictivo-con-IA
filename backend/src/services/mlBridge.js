@@ -2,6 +2,19 @@ const store = require('./dataStore');
 
 const PYTHON_SERVICE_URL = process.env.PYTHON_SERVICE_URL || 'http://localhost:5000';
 
+let currentModelType = 'auto'; // 'auto', 'rf', 'lstm'
+
+function setModelType(type) {
+    if (['auto', 'rf', 'lstm'].includes(type)) {
+        currentModelType = type;
+        console.log(`Modelo ML activo configurado a: ${type}`);
+    }
+}
+
+function getModelType() {
+    return currentModelType;
+}
+
 async function predictRUL(sensorReading, totalCycles) {
     try {
         // Obtener historial de lecturas para construir features
@@ -11,8 +24,13 @@ async function predictRUL(sensorReading, totalCycles) {
         const historyData = history.length > 0 ? history : [sensorReading];
 
         // Decidir si usar RF o LSTM
-        // Para usar LSTM requerimos al menos 30 ciclos de historial
-        const modelType = historyData.length >= 30 ? 'lstm' : 'rf';
+        let modelType = currentModelType;
+        if (modelType === 'auto') {
+            modelType = historyData.length >= 30 ? 'lstm' : 'rf';
+        } else if (modelType === 'lstm' && historyData.length < 30) {
+            // Caida forzada a RF si no hay suficiente historial para la ventana LSTM
+            modelType = 'rf';
+        }
 
         const response = await fetch(`${PYTHON_SERVICE_URL}/predict`, {
             method: 'POST',
@@ -73,4 +91,4 @@ function classifyRiskLevel(rul) {
     return 'low';
 }
 
-module.exports = { predictRUL, classifyRiskLevel };
+module.exports = { predictRUL, classifyRiskLevel, setModelType, getModelType };

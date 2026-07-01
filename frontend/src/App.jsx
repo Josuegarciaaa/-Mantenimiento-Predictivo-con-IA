@@ -34,20 +34,36 @@ function ProtectedLayout() {
     )
 }
 
+import { settingsAPI } from './services/api.js'
+
 function AppRoutes() {
-    const { state } = useAppState()
+    const { state, dispatch } = useAppState()
 
     useEffect(() => {
         if (state.isAuthenticated) {
             const socket = initSocket()
             socket.connect()
+
+            // Cargar modelo activo al iniciar
+            settingsAPI.getModel()
+                .then(res => {
+                    if (res.success && res.data) {
+                        dispatch({ type: 'SET_MODEL_TYPE', payload: res.data.modelType })
+                    }
+                })
+                .catch(err => console.error('Error cargando modelo:', err))
+
+            // Escuchar cambios en tiempo real
+            socket.on('model_changed', (data) => {
+                dispatch({ type: 'SET_MODEL_TYPE', payload: data.modelType })
+            })
         } else {
             disconnectSocket()
         }
         return () => {
             disconnectSocket()
         }
-    }, [state.isAuthenticated])
+    }, [state.isAuthenticated, dispatch])
 
     return (
         <Routes>

@@ -90,22 +90,23 @@ def predict_lstm(history_df):
     # 1. Filtrar solo los ultimos 30 ciclos
     recent_df = history_df.tail(sequence_length).copy()
     
-    # 2. Escalar columnas de entrada (usando el escalador LSTM)
+    # 2. Escalar columnas de entrada activas (las que espera el scaler de 16 features)
+    scaled_df = recent_df.copy()
+    active_cols = [
+        'sensor_2', 'sensor_3', 'sensor_4', 'sensor_6', 'sensor_7', 'sensor_8', 
+        'sensor_9', 'sensor_11', 'sensor_12', 'sensor_13', 'sensor_14', 'sensor_15', 'sensor_17', 
+        'sensor_20', 'sensor_21', 'op_setting_1'
+    ]
+    scaled_df[active_cols] = lstm_scaler.transform(scaled_df[active_cols].fillna(0))
+    
+    # 3. Obtener matriz de 24 features (todas las variables en orden)
     feature_cols = OP_SETTINGS + SENSOR_COLS
-    
-    # El preprocesador escala los datos in-place
-    # Recreamos temporalmente para escalar
-    preprocessor = DataPreprocessor(rul_cap=125)
-    preprocessor.scaler = lstm_scaler
-    
-    scaled_df = preprocessor.transform(recent_df)
-    
     X_seq = scaled_df[feature_cols].fillna(0).values
     
-    # Reshape a (1, timesteps, features)
+    # Reshape a (1, timesteps, features) -> (1, 30, 24)
     X_seq = np.expand_dims(X_seq, axis=0)
     
-    # 3. Predecir
+    # 4. Predecir
     pred = lstm_model.predict(X_seq, verbose=0)[0][0]
     return float(pred)
 

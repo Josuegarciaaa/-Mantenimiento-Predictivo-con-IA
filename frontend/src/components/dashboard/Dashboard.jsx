@@ -1,4 +1,6 @@
 import { useNavigate } from 'react-router-dom'
+import { useAppState } from '../../store/index.jsx'
+import { settingsAPI } from '../../services/api.js'
 import RULGauge from '../charts/RULGauge.jsx'
 import EngineSparkline from './EngineSparkline.jsx'
 import './Dashboard.css'
@@ -12,13 +14,54 @@ function getRiskLevel(rul) {
 
 export default function Dashboard({ summary, engines = [], alerts = [], onAcknowledgeAlert }) {
     const navigate = useNavigate()
+    const { state, dispatch } = useAppState()
+    const activeModelType = state.activeModelType
 
     if (!summary) return null
 
     const { engines: engineStats, alerts: alertStats, average_rul } = summary
 
+    async function handleModelChange(type) {
+        try {
+            await settingsAPI.updateModel(type)
+            dispatch({ type: 'SET_MODEL_TYPE', payload: type })
+        } catch (err) {
+            console.error('Error al cambiar de modelo:', err)
+        }
+    }
+
     return (
         <div className="dashboard fade-in">
+            <div className="model-selector-bar">
+                <div className="model-selector-label">
+                    <span className="brain-icon">🧠</span>
+                    <div>
+                        <div className="model-label-title">Algoritmo Predictivo de IA</div>
+                        <div className="model-label-desc">Controla qué modelo de Machine Learning realiza el diagnóstico de RUL</div>
+                    </div>
+                </div>
+                <div className="model-btn-group">
+                    <button 
+                        className={`model-btn ${activeModelType === 'auto' ? 'active' : ''}`}
+                        onClick={() => handleModelChange('auto')}
+                    >
+                        Auto (Híbrido)
+                    </button>
+                    <button 
+                        className={`model-btn ${activeModelType === 'rf' ? 'active' : ''}`}
+                        onClick={() => handleModelChange('rf')}
+                    >
+                        Random Forest
+                    </button>
+                    <button 
+                        className={`model-btn ${activeModelType === 'lstm' ? 'active' : ''}`}
+                        onClick={() => handleModelChange('lstm')}
+                    >
+                        LSTM (Red Neuronal)
+                    </button>
+                </div>
+            </div>
+
             <div className="grid-4 dashboard-kpis">
                 <div className="kpi-card kpi-card-primary">
                     <div className="kpi-label">Total equipos</div>
