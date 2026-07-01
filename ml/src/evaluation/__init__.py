@@ -1,3 +1,3 @@
 # Evaluation Module
 # =================
-# Métricas y evaluación de modelos de predicción de RUL
+# Metricas y evaluacion de modelos de prediccion de RUL

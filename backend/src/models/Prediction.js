@@ -1,18 +1,39 @@
-/**
- * Prediction.js
- * =============
- * Modelo Sequelize para predicciones de RUL.
- */
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
 
-// Implementation pending
-// Esquema planificado:
-// - id: INTEGER (PK, auto-increment)
-// - engine_id: INTEGER (FK -> Engine)
-// - predicted_rul: FLOAT
-// - confidence: FLOAT
-// - model_version: STRING
-// - risk_level: ENUM('low', 'medium', 'high', 'critical')
-// - prediction_date: DATE
-// - created_at: DATE
+const Prediction = sequelize.define('Prediction', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    engine_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    predicted_rul: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    confidence: {
+        type: DataTypes.FLOAT,
+        allowNull: false
+    },
+    model_version: {
+        type: DataTypes.STRING,
+        defaultValue: 'rf_v1.0'
+    },
+    risk_level: {
+        type: DataTypes.ENUM('low', 'medium', 'high', 'critical'),
+        defaultValue: 'low'
+    },
+    prediction_date: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    }
+}, {
+    tableName: 'predictions',
+    timestamps: false
+});
 
-module.exports = {};
+module.exports = Prediction;

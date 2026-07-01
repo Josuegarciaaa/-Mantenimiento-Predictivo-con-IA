@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: predmaint_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: predictive_maintenance
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  ml:
+    build:
+      context: ./ml
+      dockerfile: Dockerfile
+    container_name: predmaint_ml
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+    volumes:
+      - ./ml/trained_models:/usr/src/app/trained_models
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: predmaint_backend
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - DATABASE_URL=postgres://postgres:postgrespassword@db:5432/predictive_maintenance
+      - PYTHON_SERVICE_URL=http://ml:5000
+      - JWT_SECRET=supersecretmaintenancekey
+      - FRONTEND_URL=http://localhost:5173
+      - NODE_ENV=production
+    depends_on:
+      - db
+      - ml
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: predmaint_frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

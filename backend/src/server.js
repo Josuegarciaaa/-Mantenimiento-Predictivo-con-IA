@@ -37,17 +37,26 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-app.use('/api/predictions', predictionRoutes);
-app.use('/api/engines', engineRoutes);
-app.use('/api/sensors', sensorRoutes);
-app.use('/api/alerts', alertRoutes);
-app.use('/api/reports', reportRoutes);
+const authRoutes = require('./routes/auth');
+const { verifyToken } = require('./middleware/authMiddleware');
+
+app.use('/api/auth', authRoutes);
 app.use('/api/health', healthRoutes);
 
+app.use('/api/predictions', verifyToken, predictionRoutes);
+app.use('/api/engines', verifyToken, engineRoutes);
+app.use('/api/sensors', verifyToken, sensorRoutes);
+app.use('/api/alerts', verifyToken, alertRoutes);
+app.use('/api/reports', verifyToken, reportRoutes);
+
 const store = require('./services/dataStore');
-app.get('/api/dashboard', (req, res) => {
-    const summary = store.getDashboardSummary();
-    res.json({ success: true, data: summary });
+app.get('/api/dashboard', verifyToken, async (req, res) => {
+    try {
+        const summary = await store.getDashboardSummary();
+        res.json({ success: true, data: summary });
+    } catch (err) {
+        res.status(500).json({ success: false, error: { message: err.message } });
+    }
 });
 
 app.get('/', (req, res) => {
@@ -76,9 +85,36 @@ app.use((req, res) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-    console.log(`API corriendo en puerto ${PORT}`);
-    console.log(`Entorno: ${process.env.NODE_ENV || 'development'}`);
+const http = require('http');
+const { Server } = require('socket.io');
+const simulator = require('./services/simulator');
+
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+        methods: ['GET', 'POST', 'PUT', 'DELETE']
+    }
+});
+
+io.on('connection', (socket) => {
+    console.log('Cliente conectado via WebSocket:', socket.id);
+    socket.on('disconnect', () => {
+        console.log('Cliente desconectado:', socket.id);
+    });
+});
+
+store.initializeDatabase().then(() => {
+    if (process.env.NODE_ENV !== 'test') {
+        server.listen(PORT, () => {
+            console.log(`API corriendo en puerto ${PORT}`);
+            console.log(`Entorno: ${process.env.NODE_ENV || 'development'}`);
+            simulator.startSimulator(io);
+        });
+    }
+}).catch(err => {
+    console.error('Error al inicializar la base de datos:', err);
+    process.exit(1);
 });
 
 module.exports = app;

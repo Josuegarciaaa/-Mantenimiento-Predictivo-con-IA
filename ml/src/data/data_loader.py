@@ -18,9 +18,9 @@ from pathlib import Path
 COLUMN_NAMES = [
     'engine_id',          # ID del motor
     'cycle',              # Ciclo operativo
-    'op_setting_1',       # Configuración operativa 1
-    'op_setting_2',       # Configuración operativa 2
-    'op_setting_3',       # Configuración operativa 3
+    'op_setting_1',       # configuracion operativa 1
+    'op_setting_2',       # configuracion operativa 2
+    'op_setting_3',       # configuracion operativa 3
     'sensor_1',           # Total temperature at fan inlet (°R)
     'sensor_2',           # Total temperature at LPC outlet (°R)
     'sensor_3',           # Total temperature at HPC outlet (°R)

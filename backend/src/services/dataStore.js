@@ -1,116 +1,39 @@
-const engines = [
-    {
-        id: 1,
-        engine_id: 'ENG-001',
-        name: 'Turbofan Motor A1',
-        type: 'turbofan',
-        location: 'Linea 1 - Planta Saltillo',
-        status: 'healthy',
-        last_prediction_rul: 112,
-        last_prediction_date: '2026-06-30T14:00:00.000Z',
-        installation_date: '2024-03-15',
-        total_cycles: 150,
-        created_at: '2024-03-15T08:00:00.000Z',
-        updated_at: '2026-06-30T14:00:00.000Z'
-    },
-    {
-        id: 2,
-        engine_id: 'ENG-002',
-        name: 'Turbofan Motor A2',
-        type: 'turbofan',
-        location: 'Linea 1 - Planta Saltillo',
-        status: 'warning',
-        last_prediction_rul: 38,
-        last_prediction_date: '2026-06-30T14:00:00.000Z',
-        installation_date: '2023-11-20',
-        total_cycles: 280,
-        created_at: '2023-11-20T08:00:00.000Z',
-        updated_at: '2026-06-30T14:00:00.000Z'
-    },
-    {
-        id: 3,
-        engine_id: 'ENG-003',
-        name: 'Turbofan Motor B1',
-        type: 'turbofan',
-        location: 'Linea 2 - Planta Saltillo',
-        status: 'healthy',
-        last_prediction_rul: 125,
-        last_prediction_date: '2026-06-30T14:00:00.000Z',
-        installation_date: '2025-01-10',
-        total_cycles: 95,
-        created_at: '2025-01-10T08:00:00.000Z',
-        updated_at: '2026-06-30T14:00:00.000Z'
-    },
-    {
-        id: 4,
-        engine_id: 'ENG-004',
-        name: 'Turbofan Motor B2',
-        type: 'turbofan',
-        location: 'Linea 2 - Planta Saltillo',
-        status: 'critical',
-        last_prediction_rul: 11,
-        last_prediction_date: '2026-06-30T14:00:00.000Z',
-        installation_date: '2023-06-05',
-        total_cycles: 340,
-        created_at: '2023-06-05T08:00:00.000Z',
-        updated_at: '2026-06-30T14:00:00.000Z'
-    },
-    {
-        id: 5,
-        engine_id: 'ENG-005',
-        name: 'Turbofan Motor C1',
-        type: 'turbofan',
-        location: 'Linea 3 - Planta Ramos',
-        status: 'maintenance',
-        last_prediction_rul: 0,
-        last_prediction_date: '2026-06-28T10:00:00.000Z',
-        installation_date: '2024-01-22',
-        total_cycles: 200,
-        created_at: '2024-01-22T08:00:00.000Z',
-        updated_at: '2026-06-28T10:00:00.000Z'
-    },
-    {
-        id: 6,
-        engine_id: 'ENG-006',
-        name: 'Turbofan Motor C2',
-        type: 'turbofan',
-        location: 'Linea 3 - Planta Ramos',
-        status: 'healthy',
-        last_prediction_rul: 125,
-        last_prediction_date: '2026-06-30T14:00:00.000Z',
-        installation_date: '2025-09-01',
-        total_cycles: 50,
-        created_at: '2025-09-01T08:00:00.000Z',
-        updated_at: '2026-06-30T14:00:00.000Z'
-    },
-    {
-        id: 7,
-        engine_id: 'ENG-007',
-        name: 'Turbofan Motor D1',
-        type: 'turbofan',
-        location: 'Linea 4 - Planta Ramos',
-        status: 'warning',
-        last_prediction_rul: 29,
-        last_prediction_date: '2026-06-30T14:00:00.000Z',
-        installation_date: '2023-08-14',
-        total_cycles: 310,
-        created_at: '2023-08-14T08:00:00.000Z',
-        updated_at: '2026-06-30T14:00:00.000Z'
-    },
-    {
-        id: 8,
-        engine_id: 'ENG-008',
-        name: 'Turbofan Motor D2',
-        type: 'turbofan',
-        location: 'Linea 4 - Planta Ramos',
-        status: 'healthy',
-        last_prediction_rul: 98,
-        last_prediction_date: '2026-06-30T14:00:00.000Z',
-        installation_date: '2025-04-30',
-        total_cycles: 120,
-        created_at: '2025-04-30T08:00:00.000Z',
-        updated_at: '2026-06-30T14:00:00.000Z'
-    }
+const bcrypt = require('bcryptjs');
+const { sequelize, User, Engine, SensorReading, Prediction, Alert } = require('../models');
+const { Op } = require('sequelize');
+
+// Datos iniciales
+const initialEngines = [
+    { id: 1, engine_id: 'ENG-001', name: 'Turbofan Motor A1', type: 'turbofan', location: 'Linea 1 - Planta Saltillo', status: 'healthy', last_prediction_rul: 112, last_prediction_date: '2026-06-30T14:00:00.000Z', installation_date: '2024-03-15', total_cycles: 150 },
+    { id: 2, engine_id: 'ENG-002', name: 'Turbofan Motor A2', type: 'turbofan', location: 'Linea 1 - Planta Saltillo', status: 'warning', last_prediction_rul: 38, last_prediction_date: '2026-06-30T14:00:00.000Z', installation_date: '2023-11-20', total_cycles: 280 },
+    { id: 3, engine_id: 'ENG-003', name: 'Turbofan Motor B1', type: 'turbofan', location: 'Linea 2 - Planta Saltillo', status: 'healthy', last_prediction_rul: 125, last_prediction_date: '2026-06-30T14:00:00.000Z', installation_date: '2025-01-10', total_cycles: 95 },
+    { id: 4, engine_id: 'ENG-004', name: 'Turbofan Motor B2', type: 'turbofan', location: 'Linea 2 - Planta Saltillo', status: 'critical', last_prediction_rul: 11, last_prediction_date: '2026-06-30T14:00:00.000Z', installation_date: '2023-06-05', total_cycles: 340 },
+    { id: 5, engine_id: 'ENG-005', name: 'Turbofan Motor C1', type: 'turbofan', location: 'Linea 3 - Planta Ramos', status: 'maintenance', last_prediction_rul: 0, last_prediction_date: '2026-06-28T10:00:00.000Z', installation_date: '2024-01-22', total_cycles: 200 },
+    { id: 6, engine_id: 'ENG-006', name: 'Turbofan Motor C2', type: 'turbofan', location: 'Linea 3 - Planta Ramos', status: 'healthy', last_prediction_rul: 125, last_prediction_date: '2026-06-30T14:00:00.000Z', installation_date: '2025-09-01', total_cycles: 50 },
+    { id: 7, engine_id: 'ENG-007', name: 'Turbofan Motor D1', type: 'turbofan', location: 'Linea 4 - Planta Ramos', status: 'warning', last_prediction_rul: 29, last_prediction_date: '2026-06-30T14:00:00.000Z', installation_date: '2023-08-14', total_cycles: 310 },
+    { id: 8, engine_id: 'ENG-008', name: 'Turbofan Motor D2', type: 'turbofan', location: 'Linea 4 - Planta Ramos', status: 'healthy', last_prediction_rul: 98, last_prediction_date: '2026-06-30T14:00:00.000Z', installation_date: '2025-04-30', total_cycles: 120 }
+];
+
+const initialPredictions = [
+    { engine_id: 1, predicted_rul: 112, confidence: 0.91, model_version: 'rf_v1.0', risk_level: 'low', prediction_date: '2026-06-30T14:00:00.000Z' },
+    { engine_id: 2, predicted_rul: 38, confidence: 0.87, model_version: 'rf_v1.0', risk_level: 'medium', prediction_date: '2026-06-30T14:00:00.000Z' },
+    { engine_id: 3, predicted_rul: 125, confidence: 0.93, model_version: 'rf_v1.0', risk_level: 'low', prediction_date: '2026-06-30T14:00:00.000Z' },
+    { engine_id: 4, predicted_rul: 11, confidence: 0.89, model_version: 'rf_v1.0', risk_level: 'critical', prediction_date: '2026-06-30T14:00:00.000Z' },
+    { engine_id: 5, predicted_rul: 0, confidence: 0.95, model_version: 'rf_v1.0', risk_level: 'critical', prediction_date: '2026-06-28T10:00:00.000Z' },
+    { engine_id: 6, predicted_rul: 125, confidence: 0.92, model_version: 'rf_v1.0', risk_level: 'low', prediction_date: '2026-06-30T14:00:00.000Z' },
+    { engine_id: 7, predicted_rul: 29, confidence: 0.86, model_version: 'rf_v1.0', risk_level: 'high', prediction_date: '2026-06-30T14:00:00.000Z' },
+    { engine_id: 8, predicted_rul: 98, confidence: 0.90, model_version: 'rf_v1.0', risk_level: 'low', prediction_date: '2026-06-30T14:00:00.000Z' }
+];
+
+const initialAlerts = [
+    { engine_id: 4, type: 'critical', message: 'RUL estimado en 11 ciclos. Programar mantenimiento de inmediato.', predicted_rul: 11, is_acknowledged: false, created_at: '2026-06-30T14:00:00.000Z' },
+    { engine_id: 7, type: 'warning', message: 'RUL estimado en 29 ciclos. Revisar programacion de mantenimiento.', predicted_rul: 29, is_acknowledged: false, created_at: '2026-06-30T14:00:00.000Z' },
+    { engine_id: 2, type: 'warning', message: 'RUL estimado en 38 ciclos. Monitorear de cerca.', predicted_rul: 38, is_acknowledged: false, created_at: '2026-06-30T14:00:00.000Z' },
+    { engine_id: 5, type: 'maintenance_due', message: 'Motor en mantenimiento. RUL agotado.', predicted_rul: 0, is_acknowledged: true, acknowledged_by: 'Operador Turno A', acknowledged_at: '2026-06-28T11:30:00.000Z', created_at: '2026-06-28T10:00:00.000Z' },
+    { engine_id: 4, type: 'critical', message: 'Temperatura HPC (sensor_3) por encima del umbral operativo.', predicted_rul: 11, is_acknowledged: false, created_at: '2026-06-30T12:00:00.000Z' },
+    { engine_id: 7, type: 'warning', message: 'Incremento sostenido en vibracion del core (sensor_9).', predicted_rul: 29, is_acknowledged: false, created_at: '2026-06-29T16:00:00.000Z' },
+    { engine_id: 2, type: 'info', message: 'Prediccion actualizada. RUL bajo de 45 a 38 ciclos en las ultimas 24h.', predicted_rul: 38, is_acknowledged: true, acknowledged_by: 'Supervisor Martinez', acknowledged_at: '2026-06-30T09:00:00.000Z', created_at: '2026-06-30T08:00:00.000Z' },
+    { engine_id: 1, type: 'info', message: 'Motor operando dentro de parametros normales.', predicted_rul: 112, is_acknowledged: true, acknowledged_by: 'Sistema', acknowledged_at: '2026-06-30T14:01:00.000Z', created_at: '2026-06-30T14:00:00.000Z' }
 ];
 
 function generateSensorReadings(engineId, totalCycles) {
@@ -145,8 +68,7 @@ function generateSensorReadings(engineId, totalCycles) {
     const startCycle = Math.max(1, totalCycles - 49);
     for (let cycle = startCycle; cycle <= totalCycles; cycle++) {
         const degradation = (cycle - startCycle) / (totalCycles - startCycle + 1);
-        const reading = {
-            id: readings.length + 1 + (engineId - 1) * 50,
+        readings.push({
             engine_id: engineId,
             cycle: cycle,
             op_setting_1: baseValues.op_setting_1 + (Math.random() - 0.5) * 0.002,
@@ -174,55 +96,67 @@ function generateSensorReadings(engineId, totalCycles) {
             sensor_20: baseValues.sensor_20 + degradation * 1.2 + (Math.random() - 0.5) * 0.4,
             sensor_21: baseValues.sensor_21 + degradation * 0.06 + (Math.random() - 0.5) * 0.015,
             timestamp: new Date(Date.now() - (totalCycles - cycle) * 3600000).toISOString()
-        };
-        readings.push(reading);
+        });
     }
     return readings;
 }
 
-const sensorReadings = {};
-engines.forEach(engine => {
-    sensorReadings[engine.id] = generateSensorReadings(engine.id, engine.total_cycles);
-});
+async function initializeDatabase() {
+    await sequelize.sync();
+    
+    // Seed Users
+    const userCount = await User.count();
+    if (userCount === 0) {
+        const hashedPasswordAdmin = await bcrypt.hash('admin123', 10);
+        const hashedPasswordOperator = await bcrypt.hash('operator123', 10);
+        await User.bulkCreate([
+            { username: 'admin', password: hashedPasswordAdmin, role: 'admin' },
+            { username: 'operator', password: hashedPasswordOperator, role: 'operator' }
+        ]);
+    }
 
-const predictions = [
-    { id: 1, engine_id: 1, predicted_rul: 112, confidence: 0.91, model_version: 'rf_v1.0', risk_level: 'low', prediction_date: '2026-06-30T14:00:00.000Z' },
-    { id: 2, engine_id: 2, predicted_rul: 38, confidence: 0.87, model_version: 'rf_v1.0', risk_level: 'medium', prediction_date: '2026-06-30T14:00:00.000Z' },
-    { id: 3, engine_id: 3, predicted_rul: 125, confidence: 0.93, model_version: 'rf_v1.0', risk_level: 'low', prediction_date: '2026-06-30T14:00:00.000Z' },
-    { id: 4, engine_id: 4, predicted_rul: 11, confidence: 0.89, model_version: 'rf_v1.0', risk_level: 'critical', prediction_date: '2026-06-30T14:00:00.000Z' },
-    { id: 5, engine_id: 5, predicted_rul: 0, confidence: 0.95, model_version: 'rf_v1.0', risk_level: 'critical', prediction_date: '2026-06-28T10:00:00.000Z' },
-    { id: 6, engine_id: 6, predicted_rul: 125, confidence: 0.92, model_version: 'rf_v1.0', risk_level: 'low', prediction_date: '2026-06-30T14:00:00.000Z' },
-    { id: 7, engine_id: 7, predicted_rul: 29, confidence: 0.86, model_version: 'rf_v1.0', risk_level: 'high', prediction_date: '2026-06-30T14:00:00.000Z' },
-    { id: 8, engine_id: 8, predicted_rul: 98, confidence: 0.90, model_version: 'rf_v1.0', risk_level: 'low', prediction_date: '2026-06-30T14:00:00.000Z' }
-];
+    // Seed Engines
+    const engineCount = await Engine.count();
+    if (engineCount === 0) {
+        await Engine.bulkCreate(initialEngines);
 
-let alertIdCounter = 8;
-const alerts = [
-    { id: 1, engine_id: 4, type: 'critical', message: 'RUL estimado en 11 ciclos. Programar mantenimiento de inmediato.', predicted_rul: 11, is_acknowledged: false, acknowledged_by: null, acknowledged_at: null, created_at: '2026-06-30T14:00:00.000Z' },
-    { id: 2, engine_id: 7, type: 'warning', message: 'RUL estimado en 29 ciclos. Revisar programacion de mantenimiento.', predicted_rul: 29, is_acknowledged: false, acknowledged_by: null, acknowledged_at: null, created_at: '2026-06-30T14:00:00.000Z' },
-    { id: 3, engine_id: 2, type: 'warning', message: 'RUL estimado en 38 ciclos. Monitorear de cerca.', predicted_rul: 38, is_acknowledged: false, acknowledged_by: null, acknowledged_at: null, created_at: '2026-06-30T14:00:00.000Z' },
-    { id: 4, engine_id: 5, type: 'maintenance_due', message: 'Motor en mantenimiento. RUL agotado.', predicted_rul: 0, is_acknowledged: true, acknowledged_by: 'Operador Turno A', acknowledged_at: '2026-06-28T11:30:00.000Z', created_at: '2026-06-28T10:00:00.000Z' },
-    { id: 5, engine_id: 4, type: 'critical', message: 'Temperatura HPC (sensor_3) por encima del umbral operativo.', predicted_rul: 11, is_acknowledged: false, acknowledged_by: null, acknowledged_at: null, created_at: '2026-06-30T12:00:00.000Z' },
-    { id: 6, engine_id: 7, type: 'warning', message: 'Incremento sostenido en vibracion del core (sensor_9).', predicted_rul: 29, is_acknowledged: false, acknowledged_by: null, acknowledged_at: null, created_at: '2026-06-29T16:00:00.000Z' },
-    { id: 7, engine_id: 2, type: 'info', message: 'Prediccion actualizada. RUL bajo de 45 a 38 ciclos en las ultimas 24h.', predicted_rul: 38, is_acknowledged: true, acknowledged_by: 'Supervisor Martinez', acknowledged_at: '2026-06-30T09:00:00.000Z', created_at: '2026-06-30T08:00:00.000Z' },
-    { id: 8, engine_id: 1, type: 'info', message: 'Motor operando dentro de parametros normales.', predicted_rul: 112, is_acknowledged: true, acknowledged_by: 'Sistema', acknowledged_at: '2026-06-30T14:01:00.000Z', created_at: '2026-06-30T14:00:00.000Z' }
-];
+        // Seed SensorReadings
+        const readingsToInsert = [];
+        for (const engine of initialEngines) {
+            const readings = generateSensorReadings(engine.id, engine.total_cycles);
+            readingsToInsert.push(...readings);
+        }
+        await SensorReading.bulkCreate(readingsToInsert);
 
-function getEngines() {
-    return engines;
+        // Seed Predictions
+        await Prediction.bulkCreate(initialPredictions);
+
+        // Seed Alerts
+        await Alert.bulkCreate(initialAlerts);
+    }
 }
 
-function getEngineById(id) {
-    return engines.find(e => e.id === parseInt(id));
+async function getEngines() {
+    const data = await Engine.findAll({ order: [['id', 'ASC']] });
+    return data.map(e => e.toJSON());
 }
 
-function getEngineByEngineId(engineId) {
-    return engines.find(e => e.engine_id === engineId);
+async function getEngineById(id) {
+    const engine = await Engine.findByPk(id, {
+        include: [
+            { model: Prediction, as: 'predictions' }
+        ]
+    });
+    return engine ? engine.toJSON() : null;
 }
 
-function createEngine(data) {
-    const newEngine = {
-        id: engines.length + 1,
+async function getEngineByEngineId(engineId) {
+    const engine = await Engine.findOne({ where: { engine_id: engineId } });
+    return engine ? engine.toJSON() : null;
+}
+
+async function createEngine(data) {
+    const newEngine = await Engine.create({
         engine_id: data.engine_id,
         name: data.name,
         type: data.type || 'turbofan',
@@ -231,158 +165,212 @@ function createEngine(data) {
         last_prediction_rul: null,
         last_prediction_date: null,
         installation_date: data.installation_date || new Date().toISOString().split('T')[0],
-        total_cycles: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-    };
-    engines.push(newEngine);
-    sensorReadings[newEngine.id] = [];
-    return newEngine;
-}
-
-function updateEngine(id, data) {
-    const engine = getEngineById(id);
-    if (!engine) return null;
-    Object.assign(engine, data, { updated_at: new Date().toISOString() });
-    return engine;
-}
-
-function getSensorReadings(engineId, limit) {
-    const readings = sensorReadings[parseInt(engineId)] || [];
-    if (limit) return readings.slice(-limit);
-    return readings;
-}
-
-function getLatestSensorReading(engineId) {
-    const readings = sensorReadings[parseInt(engineId)] || [];
-    return readings[readings.length - 1] || null;
-}
-
-function addSensorReading(data) {
-    const engineId = parseInt(data.engine_id);
-    if (!sensorReadings[engineId]) sensorReadings[engineId] = [];
-    const reading = {
-        id: Date.now(),
-        engine_id: engineId,
-        ...data,
-        timestamp: new Date().toISOString()
-    };
-    sensorReadings[engineId].push(reading);
-
-    const engine = getEngineById(engineId);
-    if (engine) {
-        engine.total_cycles = data.cycle || engine.total_cycles + 1;
-        engine.updated_at = new Date().toISOString();
-    }
-    return reading;
-}
-
-function getPredictions() {
-    return predictions.map(p => {
-        const engine = getEngineById(p.engine_id);
-        return { ...p, engine_name: engine ? engine.name : null, engine_status: engine ? engine.status : null };
+        total_cycles: 0
     });
+    return newEngine.toJSON();
 }
 
-function getPredictionsByEngine(engineId) {
-    return predictions.filter(p => p.engine_id === parseInt(engineId));
+async function updateEngine(id, data) {
+    const engine = await Engine.findByPk(id);
+    if (!engine) return null;
+    await engine.update(data);
+    return engine.toJSON();
 }
 
-function addPrediction(data) {
-    const prediction = {
-        id: predictions.length + 1,
+async function getSensorReadings(engineId, limit) {
+    const query = {
+        where: { engine_id: parseInt(engineId) },
+        order: [['cycle', 'ASC']]
+    };
+    if (limit) {
+        // En SQLite/Postgres limit se aplica al final, pero si queremos los ultimos, ordenamos desc, limitamos, y luego reordenamos en memoria.
+        query.order = [['cycle', 'DESC']];
+        query.limit = parseInt(limit);
+        const readings = await SensorReading.findAll(query);
+        return readings.map(r => r.toJSON()).reverse();
+    }
+    const readings = await SensorReading.findAll(query);
+    return readings.map(r => r.toJSON());
+}
+
+async function getLatestSensorReading(engineId) {
+    const reading = await SensorReading.findOne({
+        where: { engine_id: parseInt(engineId) },
+        order: [['cycle', 'DESC']]
+    });
+    return reading ? reading.toJSON() : null;
+}
+
+async function addSensorReading(data) {
+    const engineId = parseInt(data.engine_id);
+    const reading = await SensorReading.create({
+        engine_id: engineId,
+        cycle: data.cycle,
+        op_setting_1: data.op_setting_1,
+        op_setting_2: data.op_setting_2,
+        op_setting_3: data.op_setting_3,
+        sensor_1: data.sensor_1,
+        sensor_2: data.sensor_2,
+        sensor_3: data.sensor_3,
+        sensor_4: data.sensor_4,
+        sensor_5: data.sensor_5,
+        sensor_6: data.sensor_6,
+        sensor_7: data.sensor_7,
+        sensor_8: data.sensor_8,
+        sensor_9: data.sensor_9,
+        sensor_10: data.sensor_10,
+        sensor_11: data.sensor_11,
+        sensor_12: data.sensor_12,
+        sensor_13: data.sensor_13,
+        sensor_14: data.sensor_14,
+        sensor_15: data.sensor_15,
+        sensor_16: data.sensor_16,
+        sensor_17: data.sensor_17,
+        sensor_18: data.sensor_18,
+        sensor_19: data.sensor_19,
+        sensor_20: data.sensor_20,
+        sensor_21: data.sensor_21,
+        timestamp: new Date().toISOString()
+    });
+
+    const engine = await Engine.findByPk(engineId);
+    if (engine) {
+        await engine.update({
+            total_cycles: data.cycle || engine.total_cycles + 1
+        });
+    }
+    return reading.toJSON();
+}
+
+async function getPredictions() {
+    const preds = await Prediction.findAll({
+        order: [['id', 'DESC']]
+    });
+    const result = [];
+    for (const p of preds) {
+        const engine = await Engine.findByPk(p.engine_id);
+        result.push({
+            ...p.toJSON(),
+            engine_name: engine ? engine.name : null,
+            engine_status: engine ? engine.status : null
+        });
+    }
+    return result;
+}
+
+async function getPredictionsByEngine(engineId) {
+    const preds = await Prediction.findAll({
+        where: { engine_id: parseInt(engineId) },
+        order: [['id', 'ASC']]
+    });
+    return preds.map(p => p.toJSON());
+}
+
+async function addPrediction(data) {
+    const prediction = await Prediction.create({
         engine_id: parseInt(data.engine_id),
         predicted_rul: data.predicted_rul,
         confidence: data.confidence,
         model_version: data.model_version || 'rf_v1.0',
         risk_level: data.risk_level,
         prediction_date: new Date().toISOString()
-    };
-    predictions.push(prediction);
+    });
 
-    const engine = getEngineById(data.engine_id);
+    const engine = await Engine.findByPk(data.engine_id);
     if (engine) {
-        engine.last_prediction_rul = data.predicted_rul;
-        engine.last_prediction_date = prediction.prediction_date;
-        if (data.predicted_rul <= 15) engine.status = 'critical';
-        else if (data.predicted_rul <= 40) engine.status = 'warning';
-        else engine.status = 'healthy';
-        engine.updated_at = prediction.prediction_date;
+        let status = 'healthy';
+        if (data.predicted_rul <= 15) status = 'critical';
+        else if (data.predicted_rul <= 40) status = 'warning';
+        
+        await engine.update({
+            last_prediction_rul: data.predicted_rul,
+            last_prediction_date: prediction.prediction_date,
+            status: status
+        });
     }
-    return prediction;
+    return prediction.toJSON();
 }
 
-function getAlerts(filters = {}) {
-    let result = [...alerts];
+async function getAlerts(filters = {}) {
+    const query = {
+        where: {},
+        order: [['created_at', 'DESC']]
+    };
+    
     if (filters.active !== undefined) {
-        result = result.filter(a => a.is_acknowledged === !filters.active);
+        query.where.is_acknowledged = !filters.active;
     }
     if (filters.type) {
-        result = result.filter(a => a.type === filters.type);
+        query.where.type = filters.type;
     }
     if (filters.engine_id) {
-        result = result.filter(a => a.engine_id === parseInt(filters.engine_id));
+        query.where.engine_id = parseInt(filters.engine_id);
     }
-    return result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    
+    const data = await Alert.findAll(query);
+    return data.map(a => a.toJSON());
 }
 
-function getAlertById(id) {
-    return alerts.find(a => a.id === parseInt(id));
+async function getAlertById(id) {
+    const alert = await Alert.findByPk(id);
+    return alert ? alert.toJSON() : null;
 }
 
-function acknowledgeAlert(id, user) {
-    const alert = getAlertById(id);
+async function acknowledgeAlert(id, user) {
+    const alert = await Alert.findByPk(id);
     if (!alert) return null;
-    alert.is_acknowledged = true;
-    alert.acknowledged_by = user || 'Sistema';
-    alert.acknowledged_at = new Date().toISOString();
-    return alert;
+    await alert.update({
+        is_acknowledged: true,
+        acknowledged_by: user || 'Sistema',
+        acknowledged_at: new Date().toISOString()
+    });
+    return alert.toJSON();
 }
 
-function createAlert(data) {
-    alertIdCounter++;
-    const alert = {
-        id: alertIdCounter,
+async function createAlert(data) {
+    const alert = await Alert.create({
         engine_id: parseInt(data.engine_id),
         type: data.type || 'warning',
         message: data.message,
         predicted_rul: data.predicted_rul,
         is_acknowledged: false,
-        acknowledged_by: null,
-        acknowledged_at: null,
         created_at: new Date().toISOString()
-    };
-    alerts.push(alert);
-    return alert;
+    });
+    return alert.toJSON();
 }
 
-function getAlertStats() {
-    const total = alerts.length;
-    const active = alerts.filter(a => !a.is_acknowledged).length;
-    const critical = alerts.filter(a => a.type === 'critical' && !a.is_acknowledged).length;
-    const warning = alerts.filter(a => a.type === 'warning' && !a.is_acknowledged).length;
+async function getAlertStats() {
+    const total = await Alert.count();
+    const active = await Alert.count({ where: { is_acknowledged: false } });
+    const critical = await Alert.count({ where: { type: 'critical', is_acknowledged: false } });
+    const warning = await Alert.count({ where: { type: 'warning', is_acknowledged: false } });
 
+    const activeAlertsList = await Alert.findAll({ where: { is_acknowledged: false } });
     const byEngine = {};
-    alerts.filter(a => !a.is_acknowledged).forEach(a => {
-        const engine = getEngineById(a.engine_id);
+    for (const a of activeAlertsList) {
+        const engine = await Engine.findByPk(a.engine_id);
         const key = engine ? engine.engine_id : `unknown_${a.engine_id}`;
         byEngine[key] = (byEngine[key] || 0) + 1;
-    });
+    }
 
     return { total, active, acknowledged: total - active, critical, warning, by_engine: byEngine };
 }
 
-function getDashboardSummary() {
-    const totalEngines = engines.length;
-    const healthy = engines.filter(e => e.status === 'healthy').length;
-    const warning = engines.filter(e => e.status === 'warning').length;
-    const critical = engines.filter(e => e.status === 'critical').length;
-    const maintenance = engines.filter(e => e.status === 'maintenance').length;
-    const activeAlerts = alerts.filter(a => !a.is_acknowledged).length;
+async function getDashboardSummary() {
+    const totalEngines = await Engine.count();
+    const healthy = await Engine.count({ where: { status: 'healthy' } });
+    const warning = await Engine.count({ where: { status: 'warning' } });
+    const critical = await Engine.count({ where: { status: 'critical' } });
+    const maintenance = await Engine.count({ where: { status: 'maintenance' } });
+    const activeAlerts = await Alert.count({ where: { is_acknowledged: false } });
 
-    const avgRul = engines
-        .filter(e => e.last_prediction_rul !== null && e.status !== 'maintenance')
-        .reduce((sum, e, _, arr) => sum + e.last_prediction_rul / arr.length, 0);
+    const enginesWithRul = await Engine.findAll({
+        where: {
+            last_prediction_rul: { [Op.ne]: null },
+            status: { [Op.ne]: 'maintenance' }
+        }
+    });
+    const avgRul = enginesWithRul.reduce((sum, e) => sum + e.last_prediction_rul, 0) / (enginesWithRul.length || 1);
 
     return {
         engines: { total: totalEngines, healthy, warning, critical, maintenance },
@@ -393,6 +381,7 @@ function getDashboardSummary() {
 }
 
 module.exports = {
+    initializeDatabase,
     getEngines,
     getEngineById,
     getEngineByEngineId,

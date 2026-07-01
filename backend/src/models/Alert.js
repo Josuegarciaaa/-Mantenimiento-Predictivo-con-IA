@@ -1,19 +1,47 @@
-/**
- * Alert.js
- * ========
- * Modelo Sequelize para alertas predictivas.
- */
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
 
-// Implementation pending
-// Esquema planificado:
-// - id: INTEGER (PK, auto-increment)
-// - engine_id: INTEGER (FK -> Engine)
-// - type: ENUM('warning', 'critical', 'maintenance_due')
-// - message: TEXT
-// - predicted_rul: FLOAT
-// - is_acknowledged: BOOLEAN
-// - acknowledged_by: STRING
-// - acknowledged_at: DATE
-// - created_at: DATE
+const Alert = sequelize.define('Alert', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    engine_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    type: {
+        type: DataTypes.ENUM('info', 'warning', 'critical', 'maintenance_due'),
+        defaultValue: 'warning'
+    },
+    message: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
+    predicted_rul: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    is_acknowledged: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    acknowledged_by: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    acknowledged_at: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    created_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    }
+}, {
+    tableName: 'alerts',
+    timestamps: false
+});
 
-module.exports = {};
+module.exports = Alert;

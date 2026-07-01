@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import AlertList from '../components/alerts/AlertList.jsx'
 import Loading from '../components/common/Loading.jsx'
-import { useAppState } from '../store/index.js'
+import { useAppState } from '../store/index.jsx'
 import { alertsAPI } from '../services/api.js'
 
 export default function AlertsPage() {

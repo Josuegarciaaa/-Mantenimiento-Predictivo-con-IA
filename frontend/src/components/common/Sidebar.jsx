@@ -1,4 +1,6 @@
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
+import { useAppState } from '../../store/index.jsx'
+import Logo from './Logo.jsx'
 import './Sidebar.css'
 
 const navItems = [
@@ -26,16 +28,17 @@ const icons = {
 }
 
 export default function Sidebar() {
-    const location = useLocation()
+    const { state, dispatch } = useAppState()
+
+    function handleLogout() {
+        dispatch({ type: 'LOGOUT' })
+    }
 
     return (
         <aside className="sidebar">
             <div className="sidebar-brand">
                 <div className="sidebar-logo">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-light)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="3" />
-                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-                    </svg>
+                    <Logo size={28} color="var(--color-primary-light)" />
                 </div>
                 <div className="sidebar-brand-text">
                     <span className="sidebar-brand-name">PredMaint</span>
@@ -61,9 +64,20 @@ export default function Sidebar() {
             </nav>
 
             <div className="sidebar-footer">
-                <div className="sidebar-status">
-                    <span className="status-dot status-dot-healthy"></span>
-                    <span className="sidebar-status-text">Sistema operativo</span>
+                {state.user && (
+                    <div className="sidebar-user-info" style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
+                        <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.9rem' }}>{state.user.username}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'capitalize' }}>{state.user.role}</div>
+                    </div>
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="sidebar-status">
+                        <span className="status-dot status-dot-healthy"></span>
+                        <span className="sidebar-status-text">Online</span>
+                    </div>
+                    <button onClick={handleLogout} className="btn-logout" style={{ background: 'none', border: 'none', color: 'var(--color-critical)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 500, padding: 0 }}>
+                        Cerrar Sesion
+                    </button>
                 </div>
             </div>
         </aside>

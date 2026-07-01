@@ -7,6 +7,9 @@ import AlertList from '../components/alerts/AlertList.jsx'
 import Loading from '../components/common/Loading.jsx'
 import { enginesAPI, sensorsAPI, alertsAPI, reportsAPI } from '../services/api.js'
 
+import RULHistoryChart from '../components/charts/RULHistoryChart.jsx'
+import { getSocket } from '../services/socket.js'
+
 export default function EngineDetailPage() {
     const { id } = useParams()
     const navigate = useNavigate()
@@ -20,6 +23,60 @@ export default function EngineDetailPage() {
     useEffect(() => {
         loadEngine()
     }, [id])
+
+    useEffect(() => {
+        const socket = getSocket()
+        if (!socket || !engine) return
+
+        const engineIntId = parseInt(id)
+
+        socket.on('sensor_update', (data) => {
+            if (data.engine_id === engineIntId) {
+                setSensorData(prev => {
+                    const exists = prev.some(r => r.cycle === data.reading.cycle)
+                    if (exists) return prev
+                    const next = [...prev, data.reading]
+                    // Mantener maximo de 50 lecturas en la grafica
+                    if (next.length > 50) next.shift()
+                    return next
+                })
+            }
+        })
+
+        socket.on('prediction_update', (data) => {
+            if (data.engine_id === engineIntId) {
+                setEngine(prev => {
+                    if (!prev) return null
+                    const preds = prev.predictions || []
+                    const exists = preds.some(p => p.id === data.prediction.id)
+                    const updatedPreds = exists ? preds : [...preds, data.prediction]
+                    return {
+                        ...prev,
+                        last_prediction_rul: data.prediction.predicted_rul,
+                        last_prediction_date: data.prediction.prediction_date,
+                        status: data.engine_status,
+                        total_cycles: data.total_cycles,
+                        predictions: updatedPreds
+                    }
+                })
+            }
+        })
+
+        socket.on('alert_new', (newAlert) => {
+            if (newAlert.engine_id === engineIntId) {
+                setAlerts(prev => {
+                    if (prev.some(a => a.id === newAlert.id)) return prev
+                    return [newAlert, ...prev]
+                })
+            }
+        })
+
+        return () => {
+            socket.off('sensor_update')
+            socket.off('prediction_update')
+            socket.off('alert_new')
+        }
+    }, [id, engine])
 
     async function loadEngine() {
         setLoading(true)
@@ -142,10 +199,10 @@ export default function EngineDetailPage() {
                 </div>
             </div>
 
-            <div className="grid-2" style={{ marginBottom: 'var(--spacing-xl)', alignItems: 'start' }}>
-                <div className="card" style={{ textAlign: 'center' }}>
-                    <div className="card-header"><span className="card-title">RUL del equipo</span></div>
-                    <div style={{ padding: 'var(--spacing-lg) 0' }}>
+            <div className="grid-3" style={{ marginBottom: 'var(--spacing-xl)', alignItems: 'start' }}>
+                <div className="card" style={{ textAlign: 'center', height: '100%' }}>
+                    <div className="card-header"><span className="card-title">Estado Actual</span></div>
+                    <div style={{ padding: 'var(--spacing-md) 0' }}>
                         <RULGauge
                             rul={engine.last_prediction_rul || 0}
                             riskLevel={riskLevel}
@@ -155,14 +212,21 @@ export default function EngineDetailPage() {
                         Nivel de riesgo: <span className={`badge badge-${riskLevel}`}>{riskLevel}</span>
                     </p>
                 </div>
-
-                <div className="card">
-                    <div className="card-header"><span className="card-title">Alertas del equipo</span></div>
-                    <AlertList
-                        alerts={alerts}
-                        onAcknowledge={handleAcknowledge}
-                    />
+                
+                <div className="card" style={{ gridColumn: 'span 2', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <div className="card-header"><span className="card-title">Tendencia de Degradación (RUL)</span></div>
+                    <div style={{ flex: 1, minHeight: '200px' }}>
+                        <RULHistoryChart predictions={engine.predictions} height="100%" />
+                    </div>
                 </div>
+            </div>
+
+            <div className="card" style={{ marginBottom: 'var(--spacing-xl)' }}>
+                <div className="card-header"><span className="card-title">Alertas del equipo</span></div>
+                <AlertList
+                    alerts={alerts}
+                    onAcknowledge={handleAcknowledge}
+                />
             </div>
 
             <SensorChart

@@ -1,4 +1,5 @@
 import { useLocation } from 'react-router-dom'
+import { useAppState } from '../../store/index.jsx'
 import './Header.css'
 
 const pageTitles = {
@@ -9,6 +10,7 @@ const pageTitles = {
 
 export default function Header() {
     const location = useLocation()
+    const { state } = useAppState()
     let title = pageTitles[location.pathname] || ''
 
     if (location.pathname.startsWith('/engines/')) {
@@ -22,6 +24,9 @@ export default function Header() {
         month: 'long',
         day: 'numeric'
     })
+
+    const username = state.user?.username || 'Operador'
+    const avatarText = username.slice(0, 2).toUpperCase()
 
     return (
         <header className="header">
@@ -37,8 +42,8 @@ export default function Header() {
                     <input type="text" placeholder="Buscar equipo..." className="header-search-input" />
                 </div>
                 <div className="header-user">
-                    <div className="header-avatar">OP</div>
-                    <span className="header-username">Operador</span>
+                    <div className="header-avatar">{avatarText}</div>
+                    <span className="header-username" style={{ textTransform: 'capitalize' }}>{username}</span>
                 </div>
             </div>
         </header>

@@ -8,5 +8,5 @@
 // Tests planificados:
 // - Health check endpoint
 // - CRUD de engines
-// - Generación de predicciones
+// - Generacion de predicciones
 // - Manejo de errores

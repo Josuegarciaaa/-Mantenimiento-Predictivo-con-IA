@@ -1,0 +1,16 @@
+{
+  "model_name": "rf_rul_model",
+  "timestamp": "2026-07-01T14:18:13.277134",
+  "metrics": {
+    "rmse": 5.983012639823647,
+    "mae": 3.784366006079101,
+    "r2_score": 0.9793872092942668,
+    "nasa_score": 11839.064576826951,
+    "accuracy_15": 96.08356356938587,
+    "accuracy_20": 99.12752653773448
+  },
+  "parameters": {
+    "n_estimators": 50,
+    "max_depth": 10
+  }
+}

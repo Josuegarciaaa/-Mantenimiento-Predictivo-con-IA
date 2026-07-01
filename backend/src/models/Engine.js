@@ -1,22 +1,53 @@
-/**
- * Engine.js
- * =========
- * Modelo Sequelize para motores/equipos industriales.
- */
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
 
-// Implementation pending
-// Esquema planificado:
-// - id: INTEGER (PK, auto-increment)
-// - engine_id: STRING (identificador único del motor)
-// - name: STRING
-// - type: STRING
-// - location: STRING
-// - status: ENUM('healthy', 'warning', 'critical', 'maintenance')
-// - last_prediction_rul: FLOAT
-// - last_prediction_date: DATE
-// - installation_date: DATE
-// - total_cycles: INTEGER
-// - created_at: DATE
-// - updated_at: DATE
+const Engine = sequelize.define('Engine', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    engine_id: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    type: {
+        type: DataTypes.STRING,
+        defaultValue: 'turbofan'
+    },
+    location: {
+        type: DataTypes.STRING,
+        defaultValue: ''
+    },
+    status: {
+        type: DataTypes.ENUM('healthy', 'warning', 'critical', 'maintenance'),
+        defaultValue: 'healthy'
+    },
+    last_prediction_rul: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    last_prediction_date: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    installation_date: {
+        type: DataTypes.DATEONLY,
+        allowNull: false
+    },
+    total_cycles: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    }
+}, {
+    tableName: 'engines',
+    timestamps: true,
+    underscored: true
+});
 
-module.exports = {};
+module.exports = Engine;

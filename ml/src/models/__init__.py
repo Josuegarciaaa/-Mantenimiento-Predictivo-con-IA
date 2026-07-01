@@ -1,3 +1,3 @@
 # Models Module
 # =============
-# Definición, entrenamiento y serialización de modelos ML/DL
+# Definicion, entrenamiento y serializacion de modelos ML/DL

@@ -5,14 +5,14 @@ const { successResponse, errorResponse } = require('../utils/response');
 const generatePDF = async (req, res) => {
     try {
         const engineId = req.params.engineId;
-        const engine = store.getEngineById(engineId);
+        const engine = await store.getEngineById(engineId);
         if (!engine) {
             return errorResponse(res, 'Motor no encontrado', 404);
         }
 
-        const predictions = store.getPredictionsByEngine(engineId);
-        const readings = store.getSensorReadings(engineId, 20);
-        const alerts = store.getAlerts({ engine_id: engineId });
+        const predictions = await store.getPredictionsByEngine(engineId);
+        const readings = await store.getSensorReadings(engineId, 20);
+        const alerts = await store.getAlerts({ engine_id: engineId });
 
         const pdfBuffer = await reportGenerator.generateEnginePDF({
             engine,
@@ -31,14 +31,15 @@ const generatePDF = async (req, res) => {
 
 const getSummary = async (req, res) => {
     try {
-        const summary = store.getDashboardSummary();
-        const engines = store.getEngines();
-        const alertStats = store.getAlertStats();
+        const summary = await store.getDashboardSummary();
+        const engines = await store.getEngines();
+        const alertStats = await store.getAlertStats();
 
         successResponse(res, {
             ...summary,
             alert_stats: alertStats,
             engines: engines.map(e => ({
+                id: e.id,
                 engine_id: e.engine_id,
                 name: e.name,
                 status: e.status,

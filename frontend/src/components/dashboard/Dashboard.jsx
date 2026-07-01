@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import RULGauge from '../charts/RULGauge.jsx'
+import EngineSparkline from './EngineSparkline.jsx'
 import './Dashboard.css'
 
 function getRiskLevel(rul) {
@@ -66,9 +67,17 @@ export default function Dashboard({ summary, engines = [], alerts = [], onAcknow
                                                 <div className="engine-card-id">{engine.engine_id}</div>
                                             </div>
                                         </div>
-                                        <span className={`badge badge-${engine.status}`}>
-                                            {engine.status}
-                                        </span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                            {engine.status !== 'maintenance' && (
+                                                <EngineSparkline 
+                                                    engineId={engine.id} 
+                                                    color={risk === 'low' ? 'var(--color-healthy)' : risk === 'medium' ? 'var(--color-warning)' : 'var(--color-critical)'} 
+                                                />
+                                            )}
+                                            <span className={`badge badge-${engine.status}`}>
+                                                {engine.status}
+                                            </span>
+                                        </div>
                                     </div>
                                     {engine.status !== 'maintenance' && engine.last_prediction_rul !== null && (
                                         <RULGauge

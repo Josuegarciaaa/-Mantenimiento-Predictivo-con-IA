@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
 import Dashboard from '../components/dashboard/Dashboard.jsx'
 import Loading from '../components/common/Loading.jsx'
-import { useAppState } from '../store/index.js'
+import { useAppState } from '../store/index.jsx'
 import { dashboardAPI, enginesAPI, alertsAPI } from '../services/api.js'
+import { getSocket } from '../services/socket.js'
 
 export default function DashboardPage() {
     const { state, dispatch } = useAppState()
@@ -10,6 +11,39 @@ export default function DashboardPage() {
     useEffect(() => {
         loadDashboard()
     }, [])
+
+    useEffect(() => {
+        const socket = getSocket()
+        if (!socket) return
+
+        socket.on('dashboard_update', (data) => {
+            dispatch({ type: 'SET_DASHBOARD', payload: data.summary })
+        })
+
+        socket.on('prediction_update', (data) => {
+            dispatch({
+                type: 'SET_ENGINES',
+                payload: state.engines.map(e => 
+                    e.id === data.engine_id 
+                        ? { ...e, last_prediction_rul: data.prediction.predicted_rul, status: data.engine_status, total_cycles: data.total_cycles }
+                        : e
+                )
+            })
+        })
+
+        socket.on('alert_new', (newAlert) => {
+            // Solo agregar si no existe ya en la lista
+            if (!state.alerts.some(a => a.id === newAlert.id)) {
+                dispatch({ type: 'SET_ALERTS', payload: [newAlert, ...state.alerts] })
+            }
+        })
+
+        return () => {
+            socket.off('dashboard_update')
+            socket.off('prediction_update')
+            socket.off('alert_new')
+        }
+    }, [state.engines, state.alerts])
 
     async function loadDashboard() {
         dispatch({ type: 'SET_LOADING', payload: true })

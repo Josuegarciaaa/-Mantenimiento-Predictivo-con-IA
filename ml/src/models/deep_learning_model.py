@@ -23,7 +23,7 @@ def build_lstm_model(input_shape: tuple, units: list = None):
     Returns:
         Modelo Keras compilado
     """
-    # Import dentro de la función para evitar dependencia obligatoria
+    # importar dentro de la funcion para evitar dependencia estricta
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.layers import (
         LSTM, Dense, Dropout, BatchNormalization
@@ -83,7 +83,7 @@ def build_cnn_lstm_model(input_shape: tuple):
     
     model = Sequential(name='CNN_LSTM_RUL_Predictor')
     
-    # Capas CNN para extracción de features locales
+    # capas cnn para extraer features locales
     model.add(Conv1D(filters=64, kernel_size=3, activation='relu', 
                      input_shape=input_shape, padding='same'))
     model.add(BatchNormalization())

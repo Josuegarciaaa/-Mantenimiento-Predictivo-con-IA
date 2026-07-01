@@ -3,6 +3,9 @@ import { createContext, useContext, useReducer } from 'react'
 const AppContext = createContext(null)
 
 const initialState = {
+    user: JSON.parse(localStorage.getItem('user')) || null,
+    token: localStorage.getItem('token') || null,
+    isAuthenticated: !!localStorage.getItem('token'),
     engines: [],
     predictions: [],
     alerts: [],
@@ -14,6 +17,30 @@ const initialState = {
 
 function appReducer(state, action) {
     switch (action.type) {
+        case 'LOGIN_SUCCESS':
+            localStorage.setItem('token', action.payload.token)
+            localStorage.setItem('user', JSON.stringify(action.payload.user))
+            return {
+                ...state,
+                token: action.payload.token,
+                user: action.payload.user,
+                isAuthenticated: true,
+                error: null
+            }
+        case 'LOGOUT':
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            return {
+                ...state,
+                token: null,
+                user: null,
+                isAuthenticated: false,
+                engines: [],
+                predictions: [],
+                alerts: [],
+                dashboard: null,
+                selectedEngine: null
+            }
         case 'SET_LOADING':
             return { ...state, isLoading: action.payload }
         case 'SET_ERROR':

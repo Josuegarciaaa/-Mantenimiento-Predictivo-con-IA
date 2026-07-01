@@ -1,3 +1,3 @@
 # ML Module - Mantenimiento Predictivo
 # =====================================
-# Pipeline completo de Machine Learning para predicción de RUL
+# Pipeline completo de Machine Learning para prediccion de RUL

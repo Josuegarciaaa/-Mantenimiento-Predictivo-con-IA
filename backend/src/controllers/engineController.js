@@ -3,7 +3,7 @@ const { successResponse, errorResponse } = require('../utils/response');
 
 const getAllEngines = async (req, res) => {
     try {
-        const engines = store.getEngines();
+        const engines = await store.getEngines();
         successResponse(res, engines);
     } catch (err) {
         errorResponse(res, err.message);
@@ -12,12 +12,12 @@ const getAllEngines = async (req, res) => {
 
 const getEngineById = async (req, res) => {
     try {
-        const engine = store.getEngineById(req.params.id);
+        const engine = await store.getEngineById(req.params.id);
         if (!engine) {
             return errorResponse(res, 'Motor no encontrado', 404);
         }
-        const predictions = store.getPredictionsByEngine(req.params.id);
-        const latestReading = store.getLatestSensorReading(req.params.id);
+        const predictions = await store.getPredictionsByEngine(req.params.id);
+        const latestReading = await store.getLatestSensorReading(req.params.id);
         successResponse(res, { ...engine, predictions, latest_reading: latestReading });
     } catch (err) {
         errorResponse(res, err.message);
@@ -30,11 +30,11 @@ const createEngine = async (req, res) => {
         if (!engine_id || !name) {
             return errorResponse(res, 'engine_id y name son requeridos', 400);
         }
-        const existing = store.getEngineByEngineId(engine_id);
+        const existing = await store.getEngineByEngineId(engine_id);
         if (existing) {
             return errorResponse(res, 'Ya existe un motor con ese engine_id', 409);
         }
-        const engine = store.createEngine({ engine_id, name, type, location, installation_date });
+        const engine = await store.createEngine({ engine_id, name, type, location, installation_date });
         successResponse(res, engine, 201);
     } catch (err) {
         errorResponse(res, err.message);
@@ -43,7 +43,7 @@ const createEngine = async (req, res) => {
 
 const updateEngine = async (req, res) => {
     try {
-        const engine = store.updateEngine(req.params.id, req.body);
+        const engine = await store.updateEngine(req.params.id, req.body);
         if (!engine) {
             return errorResponse(res, 'Motor no encontrado', 404);
         }
@@ -55,13 +55,13 @@ const updateEngine = async (req, res) => {
 
 const getEngineHistory = async (req, res) => {
     try {
-        const engine = store.getEngineById(req.params.id);
+        const engine = await store.getEngineById(req.params.id);
         if (!engine) {
             return errorResponse(res, 'Motor no encontrado', 404);
         }
-        const readings = store.getSensorReadings(req.params.id);
-        const predictions = store.getPredictionsByEngine(req.params.id);
-        const alerts = store.getAlerts({ engine_id: req.params.id });
+        const readings = await store.getSensorReadings(req.params.id);
+        const predictions = await store.getPredictionsByEngine(req.params.id);
+        const alerts = await store.getAlerts({ engine_id: req.params.id });
         successResponse(res, { engine, readings, predictions, alerts });
     } catch (err) {
         errorResponse(res, err.message);
