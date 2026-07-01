@@ -13,6 +13,10 @@ export default function DashboardPage() {
     }, [])
 
     useEffect(() => {
+        loadDashboard(true) // Carga silenciosa ante cambios de modelo
+    }, [state.activeModelType])
+
+    useEffect(() => {
         const socket = getSocket()
         if (!socket) return
 
@@ -45,8 +49,8 @@ export default function DashboardPage() {
         }
     }, [state.engines, state.alerts])
 
-    async function loadDashboard() {
-        dispatch({ type: 'SET_LOADING', payload: true })
+    async function loadDashboard(silent = false) {
+        if (!silent) dispatch({ type: 'SET_LOADING', payload: true })
         try {
             const [dashRes, enginesRes, alertsRes] = await Promise.all([
                 dashboardAPI.getSummary(),
@@ -57,7 +61,7 @@ export default function DashboardPage() {
             dispatch({ type: 'SET_ENGINES', payload: enginesRes.data })
             dispatch({ type: 'SET_ALERTS', payload: alertsRes.data })
         } catch (err) {
-            dispatch({ type: 'SET_ERROR', payload: err.message })
+            if (!silent) dispatch({ type: 'SET_ERROR', payload: err.message })
         }
     }
 

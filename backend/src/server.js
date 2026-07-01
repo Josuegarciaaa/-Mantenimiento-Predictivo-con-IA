@@ -33,7 +33,7 @@ if (process.env.NODE_ENV !== 'test') {
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 200
+    max: 10000
 });
 app.use('/api/', limiter);
 
@@ -65,17 +65,49 @@ app.get('/api/settings/model', verifyToken, (req, res) => {
     res.json({ success: true, data: { modelType: mlBridge.getModelType() } });
 });
 
-app.post('/api/settings/model', verifyToken, (req, res) => {
+app.post('/api/settings/model', verifyToken, async (req, res) => {
     const { modelType } = req.body;
     if (!['auto', 'rf', 'lstm'].includes(modelType)) {
         return res.status(400).json({ success: false, error: { message: 'Tipo de modelo invalido. Debe ser auto, rf o lstm.' } });
     }
+    
+    // 1. Cambiar el tipo de modelo activo
     mlBridge.setModelType(modelType);
     
-    // Notificar a todos los clientes por Socket.io que cambio el modelo
-    io.emit('model_changed', { modelType });
-
-    res.json({ success: true, data: { modelType } });
+    try {
+        // 2. Recalcular las predicciones para todos los motores activos utilizando el nuevo modelo
+        const engines = await store.getEngines();
+        for (const engine of engines) {
+            if (engine.status !== 'maintenance') {
+                const latestReading = await store.getLatestSensorReading(engine.id);
+                if (latestReading) {
+                    const mlResult = await mlBridge.predictRUL(latestReading, latestReading.cycle);
+                    await store.addPrediction({
+                        engine_id: engine.id,
+                        predicted_rul: mlResult.predicted_rul,
+                        confidence: mlResult.confidence,
+                        risk_level: mlResult.risk_level,
+                        model_version: mlResult.model_version
+                    });
+                }
+            }
+        }
+        
+        // 3. Emitir el cambio del modelo y la actualización del dashboard a todos los clientes
+        io.emit('model_changed', { modelType });
+        
+        const dashboardSummary = await store.getDashboardSummary();
+        const alertStats = await store.getAlertStats();
+        io.emit('dashboard_update', {
+            summary: dashboardSummary,
+            alert_stats: alertStats
+        });
+        
+        res.json({ success: true, data: { modelType } });
+    } catch (err) {
+        console.error('Error al recalcular predicciones post-cambio de modelo:', err);
+        res.status(500).json({ success: false, error: { message: 'Error al recalcular predicciones.' } });
+    }
 });
 
 app.get('/', (req, res) => {
