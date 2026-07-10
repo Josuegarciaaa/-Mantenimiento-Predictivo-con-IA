@@ -1,5 +1,11 @@
 import axios from 'axios'
+import { io } from 'socket.io-client'
 
+export const socket = io('/', {
+    path: '/socket.io',
+    autoConnect: true,
+    reconnection: true
+})
 const api = axios.create({
     baseURL: '/api',
     timeout: 15000,
