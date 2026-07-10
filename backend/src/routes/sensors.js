@@ -5,7 +5,7 @@
  * 
  * Endpoints:
  * - GET  /api/sensors/:engineId          - Datos de sensores por motor
- * - GET  /api/sensors/:engineId/latest   - Última lectura de sensores
+ * - GET  /api/sensors/:engineId/latest   - Ultima lectura de sensores
  * - POST /api/sensors                    - Ingresar datos de sensores
  */
 

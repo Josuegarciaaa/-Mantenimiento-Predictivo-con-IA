@@ -27,6 +27,23 @@ const Prediction = sequelize.define('Prediction', {
         type: DataTypes.ENUM('low', 'medium', 'high', 'critical'),
         defaultValue: 'low'
     },
+    // Intervalo de confianza al 95% (del ensemble XGBoost)
+    lower_95: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+        defaultValue: null
+    },
+    upper_95: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+        defaultValue: null
+    },
+    // Tendencia del RUL: negativo = empeorando, positivo = mejorando
+    rul_trend: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+        defaultValue: null
+    },
     prediction_date: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW

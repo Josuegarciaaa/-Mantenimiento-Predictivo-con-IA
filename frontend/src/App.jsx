@@ -9,6 +9,20 @@ import EngineDetailPage from './pages/EngineDetailPage.jsx'
 import AlertsPage from './pages/AlertsPage.jsx'
 import ReportsPage from './pages/ReportsPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
+import EnginesAdminPage from './pages/EnginesAdminPage.jsx'
+import SettingsPage from './pages/SettingsPage.jsx'
+import UsersAdminPage from './pages/UsersAdminPage.jsx'
+import MaintenanceCalendarPage from './pages/MaintenanceCalendarPage.jsx'
+import GlossaryPage from './pages/GlossaryPage.jsx'
+import MLOpsDashboardPage from './pages/MLOpsDashboardPage.jsx'
+
+function AdminRoute({ children }) {
+    const { state } = useAppState()
+    if (state.user?.role !== 'admin') {
+        return <Navigate to="/" replace />
+    }
+    return children
+}
 
 function ProtectedLayout() {
     const { state } = useAppState()
@@ -25,7 +39,13 @@ function ProtectedLayout() {
                         <Route path="/" element={<DashboardPage />} />
                         <Route path="/engines/:id" element={<EngineDetailPage />} />
                         <Route path="/alerts" element={<AlertsPage />} />
+                        <Route path="/calendar" element={<MaintenanceCalendarPage />} />
                         <Route path="/reports" element={<ReportsPage />} />
+                        <Route path="/glossary" element={<GlossaryPage />} />
+                        <Route path="/engines-admin" element={<AdminRoute><EnginesAdminPage /></AdminRoute>} />
+                        <Route path="/settings" element={<AdminRoute><SettingsPage /></AdminRoute>} />
+                        <Route path="/mlops" element={<AdminRoute><MLOpsDashboardPage /></AdminRoute>} />
+                        <Route path="/users" element={<AdminRoute><UsersAdminPage /></AdminRoute>} />
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                 </main>

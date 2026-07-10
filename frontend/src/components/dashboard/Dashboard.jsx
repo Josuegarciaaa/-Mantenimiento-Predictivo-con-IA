@@ -1,8 +1,11 @@
 import { useNavigate } from 'react-router-dom'
 import { useAppState } from '../../store/index.jsx'
+import { useTranslation } from 'react-i18next'
 import { settingsAPI } from '../../services/api.js'
 import RULGauge from '../charts/RULGauge.jsx'
 import EngineSparkline from './EngineSparkline.jsx'
+import Tooltip from '../common/Tooltip.jsx'
+import FleetMap from './FleetMap.jsx'
 import './Dashboard.css'
 
 function getRiskLevel(rul) {
@@ -15,6 +18,7 @@ function getRiskLevel(rul) {
 export default function Dashboard({ summary, engines = [], alerts = [], onAcknowledgeAlert }) {
     const navigate = useNavigate()
     const { state, dispatch } = useAppState()
+    const { t } = useTranslation()
     const activeModelType = state.activeModelType
 
     if (!summary) return null
@@ -34,10 +38,10 @@ export default function Dashboard({ summary, engines = [], alerts = [], onAcknow
         <div className="dashboard fade-in">
             <div className="model-selector-bar">
                 <div className="model-selector-label">
-                    <span className="brain-icon">🧠</span>
+                    <span className="brain-icon">AI</span>
                     <div>
-                        <div className="model-label-title">Algoritmo Predictivo de IA</div>
-                        <div className="model-label-desc">Controla qué modelo de Machine Learning realiza el diagnóstico de RUL</div>
+                        <div className="model-label-title">{t('dashboard.algorithm_title')}</div>
+                        <div className="model-label-desc">{t('dashboard.algorithm_desc')}</div>
                     </div>
                 </div>
                 <div className="model-btn-group">
@@ -45,51 +49,56 @@ export default function Dashboard({ summary, engines = [], alerts = [], onAcknow
                         className={`model-btn ${activeModelType === 'auto' ? 'active' : ''}`}
                         onClick={() => handleModelChange('auto')}
                     >
-                        Auto (Híbrido)
+                        {t('dashboard.auto')}
                     </button>
                     <button 
                         className={`model-btn ${activeModelType === 'rf' ? 'active' : ''}`}
                         onClick={() => handleModelChange('rf')}
                     >
-                        Random Forest
+                        {t('dashboard.rf')}
                     </button>
                     <button 
                         className={`model-btn ${activeModelType === 'lstm' ? 'active' : ''}`}
                         onClick={() => handleModelChange('lstm')}
                     >
-                        LSTM (Red Neuronal)
+                        {t('dashboard.lstm')}
                     </button>
                 </div>
             </div>
 
             <div className="grid-4 dashboard-kpis">
                 <div className="kpi-card kpi-card-primary">
-                    <div className="kpi-label">Total equipos</div>
+                    <div className="kpi-label">{t('dashboard.total_engines')}</div>
                     <div className="kpi-value">{engineStats.total}</div>
-                    <div className="kpi-sub">En linea de produccion</div>
+                    <div className="kpi-sub">{t('dashboard.in_production')}</div>
                 </div>
                 <div className="kpi-card kpi-card-healthy">
-                    <div className="kpi-label">Operativos</div>
+                    <div className="kpi-label">{t('dashboard.operational')}</div>
                     <div className="kpi-value">{engineStats.healthy}</div>
-                    <div className="kpi-sub">Estado saludable</div>
+                    <div className="kpi-sub">{t('dashboard.healthy_state')}</div>
                 </div>
                 <div className="kpi-card kpi-card-warning">
-                    <div className="kpi-label">En alerta</div>
+                    <div className="kpi-label">{t('dashboard.in_alert')}</div>
                     <div className="kpi-value">{engineStats.warning + engineStats.critical}</div>
-                    <div className="kpi-sub">{engineStats.critical} criticos, {engineStats.warning} advertencia</div>
+                    <div className="kpi-sub">{t('dashboard.critical_warning', { critical: engineStats.critical, warning: engineStats.warning })}</div>
                 </div>
                 <div className="kpi-card kpi-card-secondary">
-                    <div className="kpi-label">RUL promedio</div>
+                    <div className="kpi-label">
+                        {t('dashboard.avg_rul')}
+                        <Tooltip content={t('dashboard.avg_rul_tooltip')}>
+                            <span style={{ marginLeft: '6px', fontSize: '11px', color: 'var(--color-primary)' }}>ⓘ</span>
+                        </Tooltip>
+                    </div>
                     <div className="kpi-value">{average_rul}</div>
-                    <div className="kpi-sub">Ciclos restantes (prom.)</div>
+                    <div className="kpi-sub">{t('dashboard.avg_rul_desc')}</div>
                 </div>
             </div>
 
             <div className="grid-2 dashboard-main">
                 <div className="card">
                     <div className="card-header">
-                        <span className="card-title">Estado de equipos</span>
-                        <span className="card-title" style={{ opacity: 0.5 }}>{engines.length} registrados</span>
+                        <span className="card-title">{t('dashboard.engine_status')}</span>
+                        <span className="card-title" style={{ opacity: 0.5 }}>{engines.length} {t('dashboard.registered')}</span>
                     </div>
                     <div className="engine-grid">
                         {engines.map(engine => {
@@ -118,21 +127,26 @@ export default function Dashboard({ summary, engines = [], alerts = [], onAcknow
                                                 />
                                             )}
                                             <span className={`badge badge-${engine.status}`}>
-                                                {engine.status}
+                                                {t(`status.${engine.status}`) || engine.status}
                                             </span>
                                         </div>
                                     </div>
                                     {engine.status !== 'maintenance' && engine.last_prediction_rul !== null && (
-                                        <RULGauge
-                                            rul={engine.last_prediction_rul}
-                                            riskLevel={risk}
-                                        />
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                            <Tooltip content={t('engineDetail.predicted_rul_tooltip')}>
+                                                <div style={{ marginBottom: '-10px', fontSize: '11px', color: 'var(--text-muted)' }}>RUL ⓘ</div>
+                                            </Tooltip>
+                                            <RULGauge
+                                                rul={engine.last_prediction_rul}
+                                                riskLevel={risk}
+                                            />
+                                        </div>
                                     )}
                                     {engine.status === 'maintenance' && (
-                                        <div className="engine-maintenance-label">En mantenimiento</div>
+                                        <div className="engine-maintenance-label">{t('dashboard.maintenance_label')}</div>
                                     )}
                                     <div className="engine-card-footer">
-                                        <span>{engine.total_cycles} ciclos</span>
+                                        <span>{engine.total_cycles} {t('dashboard.cycles')}</span>
                                         <span>{engine.location}</span>
                                     </div>
                                 </div>
@@ -143,7 +157,7 @@ export default function Dashboard({ summary, engines = [], alerts = [], onAcknow
 
                 <div className="card dashboard-alerts-panel">
                     <div className="card-header">
-                        <span className="card-title">Alertas activas</span>
+                        <span className="card-title">{t('dashboard.active_alerts')}</span>
                         <span className={`badge ${alertStats.active > 0 ? 'badge-critical' : 'badge-healthy'}`}>
                             {alertStats.active}
                         </span>
@@ -151,16 +165,10 @@ export default function Dashboard({ summary, engines = [], alerts = [], onAcknow
                     <div className="dashboard-alerts-list">
                         {alerts.filter(a => !a.is_acknowledged).length === 0 && (
                             <div className="empty-state">
-                                <div className="empty-state-text">Sin alertas activas</div>
+                                <div className="empty-state-text">{t('dashboard.no_alerts')}</div>
                             </div>
                         )}
                         {alerts.filter(a => !a.is_acknowledged).slice(0, 6).map((alert, i) => {
-                            const typeLabels = {
-                                critical: 'Critica',
-                                warning: 'Advertencia',
-                                maintenance_due: 'Mantenimiento',
-                                info: 'Info'
-                            }
                             const typeStyles = {
                                 critical: 'badge-critical',
                                 warning: 'badge-warning',
@@ -171,13 +179,13 @@ export default function Dashboard({ summary, engines = [], alerts = [], onAcknow
                                 <div key={alert.id} className="dashboard-alert-item fade-in" style={{ animationDelay: `${i * 80}ms` }}>
                                     <div className="dashboard-alert-top">
                                         <span className={`badge ${typeStyles[alert.type] || 'badge-info'}`}>
-                                            {typeLabels[alert.type] || alert.type}
+                                            {t(`status.${alert.type}`) || alert.type}
                                         </span>
                                         <button
                                             className="btn btn-sm btn-secondary"
                                             onClick={() => onAcknowledgeAlert && onAcknowledgeAlert(alert.id)}
                                         >
-                                            Reconocer
+                                            {t('common.acknowledge')}
                                         </button>
                                     </div>
                                     <p className="dashboard-alert-msg">{alert.message}</p>
@@ -186,6 +194,14 @@ export default function Dashboard({ summary, engines = [], alerts = [], onAcknow
                         })}
                     </div>
                 </div>
+            </div>
+
+            {/* Fleet Map (Geospatial) */}
+            <div className="card fade-in" style={{ marginTop: '24px', animationDelay: '0.2s' }}>
+                <div className="card-header">
+                    <span className="card-title">global fleet tracking (live)</span>
+                </div>
+                <FleetMap engines={engines} />
             </div>
         </div>
     )

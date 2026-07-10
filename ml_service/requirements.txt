@@ -1,0 +1,13 @@
+Flask==3.0.3
+flask-cors==4.0.1
+scikit-learn>=1.4.2
+pandas>=2.2.2
+numpy>=1.26.4
+joblib>=1.4.2
+xgboost>=2.0.3
+tensorflow>=2.16.1
+psycopg2-binary>=2.9.9
+SQLAlchemy>=2.0.30
+optuna>=3.6.1
+mlflow>=2.12.1
+shap>=0.45.0

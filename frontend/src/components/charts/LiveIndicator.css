@@ -1,0 +1,63 @@
+.live-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    user-select: none;
+}
+
+/* Color variants */
+.live-indicator--cyan {
+    background: rgba(0, 229, 255, 0.08);
+    border-color: rgba(0, 229, 255, 0.25);
+    color: #00e5ff;
+}
+
+.live-indicator--green {
+    background: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.25);
+    color: #10b981;
+}
+
+.live-indicator--red {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.25);
+    color: #ef4444;
+}
+
+.live-indicator--amber {
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.25);
+    color: #f59e0b;
+}
+
+/* Pulsing dot */
+.live-dot {
+    display: block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: livePulse 1.6s ease-in-out infinite;
+}
+
+.live-indicator--cyan  .live-dot { background: #00e5ff; box-shadow: 0 0 6px rgba(0, 229, 255, 0.7); }
+.live-indicator--green .live-dot { background: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.7); }
+.live-indicator--red   .live-dot { background: #ef4444; box-shadow: 0 0 6px rgba(239, 68, 68, 0.7); }
+.live-indicator--amber .live-dot { background: #f59e0b; box-shadow: 0 0 6px rgba(245, 158, 11, 0.7); }
+
+@keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.75); }
+}
+
+.live-label {
+    line-height: 1;
+}

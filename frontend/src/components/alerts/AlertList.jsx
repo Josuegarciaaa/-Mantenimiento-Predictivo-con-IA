@@ -1,22 +1,24 @@
 import './AlertList.css'
+import { useTranslation } from 'react-i18next'
 
 export default function AlertList({ alerts = [], onAcknowledge, compact = false }) {
+    const { t } = useTranslation()
     const activeAlerts = compact ? alerts.filter(a => !a.is_acknowledged).slice(0, 5) : alerts
 
     if (!activeAlerts.length) {
         return (
             <div className="empty-state">
                 <div className="empty-state-icon">--</div>
-                <div className="empty-state-text">Sin alertas</div>
+                <div className="empty-state-text">{t('dashboard.no_alerts')}</div>
             </div>
         )
     }
 
     const typeConfig = {
-        critical: { label: 'Critica', className: 'badge-critical' },
-        warning: { label: 'Advertencia', className: 'badge-warning' },
-        maintenance_due: { label: 'Mantenimiento', className: 'badge-maintenance' },
-        info: { label: 'Info', className: 'badge-info' }
+        critical: { label: t('status.critical'), className: 'badge-critical' },
+        warning: { label: t('status.warning'), className: 'badge-warning' },
+        maintenance_due: { label: t('status.maintenance_due'), className: 'badge-maintenance' },
+        info: { label: t('status.info'), className: 'badge-info' }
     }
 
     function formatTime(dateStr) {
@@ -24,10 +26,10 @@ export default function AlertList({ alerts = [], onAcknowledge, compact = false 
         const now = new Date()
         const diffMs = now - d
         const diffHrs = Math.floor(diffMs / 3600000)
-        if (diffHrs < 1) return 'Hace menos de 1h'
-        if (diffHrs < 24) return `Hace ${diffHrs}h`
+        if (diffHrs < 1) return t('common.less_than_hour')
+        if (diffHrs < 24) return t('common.hours_ago', { count: diffHrs })
         const diffDays = Math.floor(diffHrs / 24)
-        return `Hace ${diffDays}d`
+        return t('common.days_ago', { count: diffDays })
     }
 
     return (
@@ -52,11 +54,11 @@ export default function AlertList({ alerts = [], onAcknowledge, compact = false 
                                 className="btn btn-sm btn-secondary"
                                 onClick={() => onAcknowledge(alert.id)}
                             >
-                                Reconocer
+                                {t('common.acknowledge')}
                             </button>
                         )}
                         {alert.is_acknowledged && (
-                            <span className="alert-ack-label">Reconocida</span>
+                            <span className="alert-ack-label">{t('common.acknowledged')}</span>
                         )}
                     </div>
                 )

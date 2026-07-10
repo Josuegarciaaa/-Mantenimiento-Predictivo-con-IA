@@ -7,7 +7,7 @@
  * - GET  /api/alerts            - Lista todas las alertas activas
  * - GET  /api/alerts/:id        - Detalle de una alerta
  * - PUT  /api/alerts/:id/ack    - Marcar alerta como reconocida
- * - GET  /api/alerts/stats      - Estadísticas de alertas
+ * - GET  /api/alerts/stats      - Estadisticas de alertas
  */
 
 const express = require('express');

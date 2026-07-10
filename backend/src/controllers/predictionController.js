@@ -59,6 +59,21 @@ const generatePrediction = async (req, res) => {
             });
         }
 
+        // --- AGENTIC AI: Auto-Remediation Workflow ---
+        if (result.risk_level === 'critical') {
+            // Agent automatically schedules maintenance
+            await store.updateEngine(engine_id, { status: 'maintenance' });
+            
+            // Log Agent Action
+            await store.createAlert({
+                engine_id: parseInt(engine_id),
+                type: 'info',
+                message: `[sistema automatizado]: el motor se quito de operacion activa y paso a mantenimiento por posible fallo futuro (RUL: ${result.predicted_rul}).`,
+                predicted_rul: result.predicted_rul
+            });
+            console.log(`[AGENT] auto-remediation triggered for engine ${engine_id}`);
+        }
+
         successResponse(res, prediction, 201);
     } catch (err) {
         errorResponse(res, err.message);
@@ -85,6 +100,27 @@ const batchPrediction = async (req, res) => {
                 model_version: result.model_version
             });
 
+            if (result.risk_level === 'critical' || result.risk_level === 'high') {
+                await store.createAlert({
+                    engine_id: engine.id,
+                    type: result.risk_level === 'critical' ? 'critical' : 'warning',
+                    message: `RUL estimado en ${result.predicted_rul} ciclos para ${engine.name}.`,
+                    predicted_rul: result.predicted_rul
+                });
+            }
+
+            // --- AGENTIC AI: Auto-Remediation Workflow ---
+            if (result.risk_level === 'critical') {
+                await store.updateEngine(engine.id, { status: 'maintenance' });
+                await store.createAlert({
+                    engine_id: engine.id,
+                    type: 'info',
+                    message: `[sistema automatizado]: el motor se quito de operacion activa y paso a mantenimiento por posible fallo futuro (RUL: ${result.predicted_rul}).`,
+                    predicted_rul: result.predicted_rul
+                });
+                console.log(`[AGENT] auto-remediation triggered for engine ${engine.id}`);
+            }
+
             results.push({ engine_id: engine.engine_id, engine_name: engine.name, ...prediction });
         }
 
@@ -94,4 +130,30 @@ const batchPrediction = async (req, res) => {
     }
 };
 
-module.exports = { getAllPredictions, getPredictionByEngine, generatePrediction, batchPrediction };
+const simulateDigitalTwin = async (req, res) => {
+    try {
+        const { engine_id, overrides } = req.body;
+        if (!engine_id || !overrides) {
+            return errorResponse(res, 'engine_id y overrides son requeridos', 400);
+        }
+        
+        const latestReading = await store.getLatestSensorReading(engine_id);
+        if (!latestReading) {
+            return errorResponse(res, 'Sin datos de sensores para simular', 400);
+        }
+
+        // Aplicar overrides sobre la ultima lectura
+        const simulatedReading = { ...latestReading, ...overrides };
+        
+        const result = await mlBridge.simulateDigitalTwin(simulatedReading);
+        if (!result) {
+            return errorResponse(res, 'Fallo la simulacion en el motor ML', 500);
+        }
+
+        successResponse(res, result);
+    } catch (err) {
+        errorResponse(res, err.message);
+    }
+};
+
+module.exports = { getAllPredictions, getPredictionByEngine, generatePrediction, batchPrediction, simulateDigitalTwin };

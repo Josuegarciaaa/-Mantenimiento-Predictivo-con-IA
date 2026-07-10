@@ -9,7 +9,7 @@ const register = async (req, res) => {
     try {
         const { username, password, role } = req.body;
         if (!username || !password) {
-            return errorResponse(res, 'Usuario y contraseña requeridos', 400);
+            return errorResponse(res, 'Usuario y contrasena requeridos', 400);
         }
 
         const existing = await User.findOne({ where: { username } });
@@ -34,7 +34,7 @@ const login = async (req, res) => {
     try {
         const { username, password } = req.body;
         if (!username || !password) {
-            return errorResponse(res, 'Usuario y contraseña requeridos', 400);
+            return errorResponse(res, 'Usuario y contrasena requeridos', 400);
         }
 
         const user = await User.findOne({ where: { username } });

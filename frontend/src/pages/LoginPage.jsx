@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppState } from '../store/index.jsx'
 import { authAPI } from '../services/api'
+import { useTranslation } from 'react-i18next'
 import Logo from '../components/common/Logo.jsx'
 import './LoginPage.css'
 
@@ -11,12 +12,13 @@ export default function LoginPage() {
     const [error, setError] = useState(null)
     const [loading, setLoading] = useState(false)
     const { dispatch } = useAppState()
+    const { t } = useTranslation()
     const navigate = useNavigate()
 
     async function handleSubmit(e) {
         e.preventDefault()
         if (!username.trim() || !password.trim()) {
-            setError('Por favor llena todos los campos')
+            setError(t('auth.required_fields'))
             return
         }
         
@@ -34,10 +36,10 @@ export default function LoginPage() {
                 })
                 navigate('/')
             } else {
-                setError(res.error?.message || 'Error al iniciar sesion')
+                setError(res.error?.message || t('auth.login_error'))
             }
         } catch (err) {
-            setError(err.message || 'Error de conexion con el servidor')
+            setError(t('auth.server_error'))
         } finally {
             setLoading(false)
         }
@@ -51,27 +53,27 @@ export default function LoginPage() {
                         <Logo size={42} color="var(--text-primary)" />
                         <h2>PredMaint</h2>
                     </div>
-                    <p className="login-subtitle">Monitoreo y Mantenimiento Predictivo con IA</p>
+                    <p className="login-subtitle">{t('auth.login_subtitle')}</p>
                 </div>
 
                 {error && <div className="login-error">{error}</div>}
 
                 <form onSubmit={handleSubmit} className="login-form">
                     <div className="form-group">
-                        <label htmlFor="username">Usuario</label>
+                        <label htmlFor="username">{t('auth.username')}</label>
                         <input
                             type="text"
                             id="username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            placeholder="Ej. operator"
+                            placeholder={t('auth.username_placeholder')}
                             autoComplete="username"
                             disabled={loading}
                         />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="password">Contraseña</label>
+                        <label htmlFor="password">{t('auth.password')}</label>
                         <input
                             type="password"
                             id="password"
@@ -84,13 +86,15 @@ export default function LoginPage() {
                     </div>
 
                     <button type="submit" className="btn btn-primary login-btn" disabled={loading}>
-                        {loading ? 'Iniciando sesion...' : 'Ingresar al Dashboard'}
+                        {loading ? t('auth.loading') : t('auth.login_button')}
                     </button>
                 </form>
 
-                <div className="login-footer">
-                    <p>Credenciales de demo:</p>
-                    <p><code>admin / admin123</code> &middot; <code>operator / operator123</code></p>
+                <div className="login-demo-creds">
+                    <p>{t('auth.demo_credentials')}</p>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+                        <code>admin / admin123</code> &middot; <code>operator / operator123</code>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,0 +1,22 @@
+{
+  "trained_at": "2026-07-09T17:12:16.421270",
+  "window_size": 30,
+  "n_engines": 200,
+  "models": {
+    "xgboost_ensemble": {
+      "n_models": 8,
+      "best_model_idx": 3,
+      "rmse": 46.20057536505904,
+      "mae": 37.698673248291016,
+      "r2_score": 0.5658820867538452,
+      "nasa_score": 854.2566750504375
+    },
+    "bilstm_attention": {
+      "rmse": 42.926625658554705,
+      "mae": 31.30526351928711,
+      "r2_score": 0.5833824276924133,
+      "nasa_score": 18615.06077626057
+    }
+  },
+  "n_ensemble_models": 8
+}

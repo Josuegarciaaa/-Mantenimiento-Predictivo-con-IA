@@ -1,0 +1,40 @@
+.tooltip-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: help;
+}
+
+.tooltip-box {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    transform: translateY(-50%);
+    margin-left: 12px;
+    padding: 8px 12px;
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    white-space: normal;
+    min-width: 200px;
+    max-width: 300px;
+    z-index: 1000;
+    box-shadow: var(--shadow-md);
+    line-height: 1.4;
+    text-align: left;
+    font-weight: 400;
+}
+
+.tooltip-box::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    left: auto;
+    transform: translateY(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent var(--border-color) transparent transparent;
+}

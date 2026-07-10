@@ -1,17 +1,26 @@
 .header {
     position: fixed;
-    top: 0;
-    left: var(--sidebar-width);
-    right: 0;
-    height: var(--header-height);
-    background: rgba(10, 14, 26, 0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border-color);
+    top: 16px;
+    left: calc(var(--sidebar-width) + 24px);
+    right: 24px;
+    height: 64px;
+    background: rgba(9, 9, 11, 0.65);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-full);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 var(--spacing-xl);
+    padding: 0 24px;
     z-index: 90;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    animation: fadeInDown 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .header-left {
@@ -21,16 +30,18 @@
 }
 
 .header-title {
-    font-size: 1.15rem;
-    font-weight: 600;
+    font-size: 1.1rem;
+    font-weight: 700;
     color: var(--text-primary);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
 }
 
 .header-date {
     font-size: 0.8rem;
     color: var(--text-muted);
-    text-transform: capitalize;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .header-right {
@@ -43,16 +54,18 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-    background: var(--bg-input);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 0.4rem 0.75rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-full);
+    padding: 0.4rem 1rem;
     color: var(--text-muted);
-    transition: border-color var(--transition-fast);
+    transition: all var(--transition-fast);
 }
 
 .header-search:focus-within {
-    border-color: var(--color-primary);
+    border-color: rgba(0, 229, 255, 0.5);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .header-search-input {
@@ -60,12 +73,12 @@
     border: none;
     color: var(--text-primary);
     font-size: 0.85rem;
-    width: 180px;
+    width: 200px;
     padding: 0;
 }
 
 .header-search-input::placeholder {
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.3);
 }
 
 .header-search-input:focus {
@@ -77,23 +90,26 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
+    padding-left: 1rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .header-avatar {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    background: linear-gradient(135deg, var(--color-primary), #6366f1);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: white;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #fff;
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
 }
 
 .header-username {
     font-size: 0.85rem;
     color: var(--text-secondary);
-    font-weight: 500;
+    font-weight: 600;
 }

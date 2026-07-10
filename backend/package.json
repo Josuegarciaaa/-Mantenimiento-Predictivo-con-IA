@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "jest --coverage",
+    "test": "jest --coverage --forceExit",
+    "test:watch": "jest --watch",
     "lint": "eslint src/"
   },
   "keywords": [
@@ -18,6 +19,18 @@
   ],
   "author": "",
   "license": "MIT",
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 15000,
+    "testMatch": ["**/tests/**/*.test.js"],
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/server.js"
+    ],
+    "coverageReporters": ["text", "lcov"],
+    "verbose": true
+  },
   "dependencies": {
     "axios": "^1.6.0",
     "bcryptjs": "^3.0.3",
@@ -29,13 +42,16 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.0",
+    "nodemailer": "^6.9.0",
     "pdfkit": "^0.13.0",
     "pg": "^8.22.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.8",
     "socket.io": "^4.8.3",
     "sqlite3": "^6.0.1",
-    "winston": "^3.11.0"
+    "swagger-ui-express": "^5.0.0",
+    "winston": "^3.11.0",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "eslint": "^8.55.0",

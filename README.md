@@ -1,4 +1,4 @@
-#  Sistema de Mantenimiento Predictivo con IA para Manufactura
+# Sistema de Mantenimiento Predictivo con IA para Manufactura
 
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange.svg)](https://tensorflow.org)
@@ -9,15 +9,15 @@
 
 ---
 
-##  Descripción
+## Descripción
 
 Sistema end-to-end de **Industry 4.0** que implementa mantenimiento predictivo usando Machine Learning sobre el dataset NASA C-MAPSS Turbofan. El sistema procesa datos de sensores en tiempo real, predice el **Remaining Useful Life (RUL)** de equipos industriales y genera alertas preventivas a través de un dashboard interactivo.
 
-##  Arquitectura
+## Arquitectura
 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Dataset    │────▶│  Pipeline   │────▶│  Modelo ML  │────▶│   API REST  │
+│   Dataset    │────│  Pipeline   │────│  Modelo ML  │────│   API REST  │
 │  NASA CMAPSS │     │  ETL Python │     │  TensorFlow │     │  Node/Flask │
 └─────────────┘     └─────────────┘     └─────────────┘     └──────┬──────┘
                                                                     │
@@ -27,7 +27,7 @@ Sistema end-to-end de **Industry 4.0** que implementa mantenimiento predictivo u
                                                             └─────────────┘
 ```
 
-##  Stack Técnico
+## Stack Técnico
 
 | Capa | Tecnología |
 |------|-----------|
@@ -38,7 +38,7 @@ Sistema end-to-end de **Industry 4.0** que implementa mantenimiento predictivo u
 | Base de datos | PostgreSQL |
 | Reportes | PDF Export |
 
-##  Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 predictive-maintenance/
@@ -93,7 +93,7 @@ predictive-maintenance/
 └── docker/                  # Configuración Docker
 ```
 
-##  Timeline
+## Timeline
 
 | Semana | Entregable |
 |--------|-----------|
@@ -102,17 +102,17 @@ predictive-maintenance/
 | 3 | API REST + Dashboard frontend |
 | 4 | Integración, testing y deploy |
 
-##  Dataset
+## Dataset
 
 **NASA C-MAPSS Turbofan Engine Degradation Simulation Dataset**
 - Datos de sensores de motores industriales con ciclos de vida completos hasta la falla
 - Estándar de la industria para demostrar mantenimiento predictivo
 - Incluye datos de entrenamiento y testing con múltiples condiciones operativas
 
-##  Keywords
+## Keywords
 
 `Machine Learning` `TensorFlow` `Mantenimiento Predictivo` `Industry 4.0` `IoT` `Predictive Maintenance` `RUL Prediction` `Deep Learning` `Full Stack` `Manufacturing`
 
-##  Licencia
+## Licencia
 
 MIT License - Ver [LICENSE](LICENSE) para más detalles.

@@ -1,7 +1,7 @@
 /**
  * validator.js
  * ============
- * Middleware de validación de requests.
+ * Middleware de validacion de requests.
  */
 
 const { validationResult } = require('express-validator');

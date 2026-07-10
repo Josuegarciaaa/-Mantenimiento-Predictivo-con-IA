@@ -1,0 +1,165 @@
+.mlops-page {
+    padding-bottom: 2rem;
+}
+
+.mlops-grid {
+    display: grid;
+    /* Asymmetrical bento box layout */
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.mlops-card {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Make the first card span 2 columns for a better bento look on desktop */
+@media (min-width: 1024px) {
+    .mlops-grid > .mlops-card:first-child {
+        grid-column: span 2;
+    }
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    padding: 1rem 0;
+}
+
+.metric-box {
+    background: rgba(9, 9, 11, 0.4);
+    padding: 1.2rem;
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transition: all var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-box::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+    width: 80%;
+    height: 1px;
+    background: radial-gradient(circle, rgba(0, 229, 255, 0.5) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.metric-box:hover {
+    background: rgba(9, 9, 11, 0.8);
+    transform: translateY(-2px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 20px rgba(0,0,0,0.5);
+}
+
+.metric-box:hover::after {
+    opacity: 1;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.metric-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+}
+
+.status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 1rem;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.status-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.status-item span {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.status-item strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.mlflow-card {
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+.iframe-container {
+    flex: 1;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    background: #18181b; /* Dark backdrop before iframe loads */
+}
+
+.mlflow-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    opacity: 0.9; /* Slight blend with dark theme */
+    mix-blend-mode: luminosity; /* MLflow is usually white, this hacks it to dark mode somewhat */
+}
+
+.mlflow-iframe:hover {
+    mix-blend-mode: normal;
+    opacity: 1;
+}
+
+/* Custom badges */
+.badge {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid transparent;
+}
+
+.badge-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #4ade80;
+    border-color: rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.1);
+}
+
+.badge-info {
+    background: rgba(0, 229, 255, 0.1);
+    color: #5effff;
+    border-color: rgba(0, 229, 255, 0.3);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.1);
+}

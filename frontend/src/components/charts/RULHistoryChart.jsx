@@ -2,8 +2,10 @@ import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
     ResponsiveContainer, ReferenceLine
 } from 'recharts'
+import { useTranslation } from 'react-i18next'
 
 function CustomTooltip({ active, payload, label }) {
+    const { t, i18n } = useTranslation()
     if (!active || !payload?.length) return null
     const data = payload[0].payload
     
@@ -18,18 +20,18 @@ function CustomTooltip({ active, payload, label }) {
             fontSize: '0.85rem'
         }}>
             <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: '0.6rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.4rem' }}>
-                {new Date(data.prediction_date).toLocaleString('es-MX')}
+                {new Date(data.prediction_date).toLocaleString(i18n.language === 'es' ? 'es-MX' : 'en-US')}
             </div>
             <div style={{ color: 'var(--color-primary-light)', marginBottom: '0.3rem', display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
-                <span>RUL Estimado:</span>
-                <span style={{ fontWeight: 600 }}>{data.predicted_rul} ciclos</span>
+                <span>{t('engineDetail.predicted_rul')}:</span>
+                <span style={{ fontWeight: 600 }}>{data.predicted_rul} {t('engineDetail.cycles')}</span>
             </div>
             <div style={{ color: 'var(--text-secondary)', marginBottom: '0.3rem', display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
-                <span>Confianza:</span>
+                <span>{t('engineDetail.confidence')}:</span>
                 <span style={{ fontWeight: 600 }}>{(data.confidence * 100).toFixed(1)}%</span>
             </div>
             <div style={{ color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
-                <span>Riesgo:</span>
+                <span>{t('engineDetail.risk_level')}:</span>
                 <span className={`badge badge-${data.risk_level === 'critical' ? 'critical' : data.risk_level === 'high' ? 'warning' : 'healthy'}`} style={{ padding: '0.1rem 0.4rem', fontSize: '0.65rem' }}>
                     {data.risk_level.toUpperCase()}
                 </span>
@@ -39,10 +41,12 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 export default function RULHistoryChart({ predictions = [], height = 250 }) {
+    const { t } = useTranslation()
+    
     if (!predictions.length) {
         return (
             <div className="empty-state">
-                <div className="empty-state-text">Sin historial de predicciones de RUL</div>
+                <div className="empty-state-text">{t('common.no_results')}</div>
             </div>
         )
     }

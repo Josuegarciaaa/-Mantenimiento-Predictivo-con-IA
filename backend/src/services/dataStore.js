@@ -20,20 +20,21 @@ const initialPredictions = [
     { engine_id: 3, predicted_rul: 125, confidence: 0.93, model_version: 'rf_v1.0', risk_level: 'low', prediction_date: '2026-06-30T14:00:00.000Z' },
     { engine_id: 4, predicted_rul: 11, confidence: 0.89, model_version: 'rf_v1.0', risk_level: 'critical', prediction_date: '2026-06-30T14:00:00.000Z' },
     { engine_id: 5, predicted_rul: 0, confidence: 0.95, model_version: 'rf_v1.0', risk_level: 'critical', prediction_date: '2026-06-28T10:00:00.000Z' },
+    { engine_id: 5, predicted_rul: 0, confidence: 0.95, model_version: 'rf_v1.0', risk_level: 'critical', prediction_date: '2026-06-28T10:00:00.000Z' },
     { engine_id: 6, predicted_rul: 125, confidence: 0.92, model_version: 'rf_v1.0', risk_level: 'low', prediction_date: '2026-06-30T14:00:00.000Z' },
     { engine_id: 7, predicted_rul: 29, confidence: 0.86, model_version: 'rf_v1.0', risk_level: 'high', prediction_date: '2026-06-30T14:00:00.000Z' },
     { engine_id: 8, predicted_rul: 98, confidence: 0.90, model_version: 'rf_v1.0', risk_level: 'low', prediction_date: '2026-06-30T14:00:00.000Z' }
 ];
 
 const initialAlerts = [
-    { engine_id: 4, type: 'critical', message: 'RUL estimado en 11 ciclos. Programar mantenimiento de inmediato.', predicted_rul: 11, is_acknowledged: false, created_at: '2026-06-30T14:00:00.000Z' },
-    { engine_id: 7, type: 'warning', message: 'RUL estimado en 29 ciclos. Revisar programacion de mantenimiento.', predicted_rul: 29, is_acknowledged: false, created_at: '2026-06-30T14:00:00.000Z' },
-    { engine_id: 2, type: 'warning', message: 'RUL estimado en 38 ciclos. Monitorear de cerca.', predicted_rul: 38, is_acknowledged: false, created_at: '2026-06-30T14:00:00.000Z' },
-    { engine_id: 5, type: 'maintenance_due', message: 'Motor en mantenimiento. RUL agotado.', predicted_rul: 0, is_acknowledged: true, acknowledged_by: 'Operador Turno A', acknowledged_at: '2026-06-28T11:30:00.000Z', created_at: '2026-06-28T10:00:00.000Z' },
-    { engine_id: 4, type: 'critical', message: 'Temperatura HPC (sensor_3) por encima del umbral operativo.', predicted_rul: 11, is_acknowledged: false, created_at: '2026-06-30T12:00:00.000Z' },
-    { engine_id: 7, type: 'warning', message: 'Incremento sostenido en vibracion del core (sensor_9).', predicted_rul: 29, is_acknowledged: false, created_at: '2026-06-29T16:00:00.000Z' },
-    { engine_id: 2, type: 'info', message: 'Prediccion actualizada. RUL bajo de 45 a 38 ciclos en las ultimas 24h.', predicted_rul: 38, is_acknowledged: true, acknowledged_by: 'Supervisor Martinez', acknowledged_at: '2026-06-30T09:00:00.000Z', created_at: '2026-06-30T08:00:00.000Z' },
-    { engine_id: 1, type: 'info', message: 'Motor operando dentro de parametros normales.', predicted_rul: 112, is_acknowledged: true, acknowledged_by: 'Sistema', acknowledged_at: '2026-06-30T14:01:00.000Z', created_at: '2026-06-30T14:00:00.000Z' }
+    { engine_id: 4, type: 'critical', message: 'Estimated RUL at 11 cycles. Schedule immediate maintenance.', predicted_rul: 11, is_acknowledged: false, created_at: '2026-06-30T14:00:00.000Z' },
+    { engine_id: 7, type: 'warning', message: 'Estimated RUL at 29 cycles. Review maintenance schedule.', predicted_rul: 29, is_acknowledged: false, created_at: '2026-06-30T14:00:00.000Z' },
+    { engine_id: 2, type: 'warning', message: 'RUL at 38 cycles. Continuous monitoring recommended.', predicted_rul: 38, is_acknowledged: false, created_at: '2026-06-30T14:00:00.000Z' },
+    { engine_id: 5, type: 'critical', message: 'Engine failure. Maintenance process initiated.', predicted_rul: 0, is_acknowledged: true, acknowledged_by: 'Admin', acknowledged_at: '2026-06-28T10:30:00.000Z', created_at: '2026-06-28T10:00:00.000Z' },
+    { engine_id: 4, type: 'critical', message: 'HPC Temperature (sensor_3) above operational threshold.', predicted_rul: 11, is_acknowledged: false, created_at: '2026-06-30T12:00:00.000Z' },
+    { engine_id: 7, type: 'warning', message: 'Sustained increase in core vibration (sensor_9).', predicted_rul: 29, is_acknowledged: false, created_at: '2026-06-29T16:00:00.000Z' },
+    { engine_id: 2, type: 'info', message: 'Prediction updated. RUL dropped from 45 to 38 cycles in the last 24h.', predicted_rul: 38, is_acknowledged: true, acknowledged_by: 'Supervisor Martinez', acknowledged_at: '2026-06-30T09:00:00.000Z', created_at: '2026-06-30T08:00:00.000Z' },
+    { engine_id: 1, type: 'info', message: 'Engine operating within normal parameters.', predicted_rul: 112, is_acknowledged: true, acknowledged_by: 'System', acknowledged_at: '2026-06-30T14:01:00.000Z', created_at: '2026-06-30T14:00:00.000Z' }
 ];
 
 function generateSensorReadings(engineId, totalCycles) {
@@ -273,6 +274,9 @@ async function addPrediction(data) {
         confidence: data.confidence,
         model_version: data.model_version || 'rf_v1.0',
         risk_level: data.risk_level,
+        lower_95: data.lower_95 ?? null,
+        upper_95: data.upper_95 ?? null,
+        rul_trend: data.rul_trend ?? null,
         prediction_date: new Date().toISOString()
     });
 

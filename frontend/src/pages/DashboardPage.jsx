@@ -2,11 +2,13 @@ import { useEffect } from 'react'
 import Dashboard from '../components/dashboard/Dashboard.jsx'
 import Loading from '../components/common/Loading.jsx'
 import { useAppState } from '../store/index.jsx'
+import { useTranslation } from 'react-i18next'
 import { dashboardAPI, enginesAPI, alertsAPI } from '../services/api.js'
 import { getSocket } from '../services/socket.js'
 
 export default function DashboardPage() {
     const { state, dispatch } = useAppState()
+    const { t } = useTranslation()
 
     useEffect(() => {
         loadDashboard()
@@ -67,13 +69,14 @@ export default function DashboardPage() {
 
     async function handleAcknowledge(alertId) {
         try {
-            await alertsAPI.acknowledge(alertId, 'Operador')
+            const userName = state.user?.username || t('common.unknown_user')
+            await alertsAPI.acknowledge(alertId, userName)
             dispatch({
                 type: 'UPDATE_ALERT',
                 payload: {
                     ...state.alerts.find(a => a.id === alertId),
                     is_acknowledged: true,
-                    acknowledged_by: 'Operador',
+                    acknowledged_by: userName,
                     acknowledged_at: new Date().toISOString()
                 }
             })
@@ -82,15 +85,15 @@ export default function DashboardPage() {
         }
     }
 
-    if (state.isLoading) return <Loading text="Cargando dashboard..." />
+    if (state.isLoading) return <Loading text={t('common.loading')} />
 
     if (state.error) {
         return (
             <div className="card" style={{ textAlign: 'center', padding: 'var(--spacing-2xl)' }}>
                 <p style={{ color: 'var(--color-critical)', marginBottom: 'var(--spacing-md)' }}>
-                    Error al cargar: {state.error}
+                    {t('common.error')} {state.error}
                 </p>
-                <button className="btn btn-primary" onClick={loadDashboard}>Reintentar</button>
+                <button className="btn btn-primary" onClick={loadDashboard}>{t('common.retry')}</button>
             </div>
         )
     }

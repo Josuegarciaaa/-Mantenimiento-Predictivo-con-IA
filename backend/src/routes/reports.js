@@ -1,7 +1,7 @@
 /**
  * reports.js
  * ==========
- * Rutas para generación de reportes.
+ * Rutas para generacion de reportes.
  * 
  * Endpoints:
  * - GET  /api/reports/pdf/:engineId   - Generar reporte PDF

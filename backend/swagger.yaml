@@ -1,0 +1,87 @@
+openapi: 3.0.0
+info:
+  title: PredMaint Industrial API
+  description: API backend para el sistema de Mantenimiento Predictivo Industrial (Enterprise Grade).
+  version: 1.0.0
+servers:
+  - url: http://localhost:3001/api
+    description: Servidor de Desarrollo Local
+paths:
+  /settings/models/info:
+    get:
+      summary: Obtiene la información del modelo y métricas MLOps
+      tags:
+        - MLOps
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      models_loaded:
+                        type: object
+                      training_metadata:
+                        type: object
+  /engines:
+    get:
+      summary: Obtiene la lista de todos los motores/equipos
+      tags:
+        - Motores
+      responses:
+        '200':
+          description: Lista de equipos
+    post:
+      summary: Registra un nuevo motor
+      tags:
+        - Motores
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                engine_id:
+                  type: string
+                name:
+                  type: string
+                type:
+                  type: string
+                location:
+                  type: string
+      responses:
+        '201':
+          description: Motor creado
+  /sensors/{engine_id}:
+    get:
+      summary: Obtiene el historial de sensores y predicciones de un motor específico
+      tags:
+        - Telemetría
+      parameters:
+        - in: path
+          name: engine_id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Datos de sensores
+  /alerts:
+    get:
+      summary: Obtiene las alertas activas del sistema
+      tags:
+        - Alertas
+      responses:
+        '200':
+          description: Lista de alertas

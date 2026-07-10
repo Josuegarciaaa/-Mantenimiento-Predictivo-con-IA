@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const STATUS_COLORS = {
     low: 'var(--color-healthy)',
@@ -8,6 +9,7 @@ const STATUS_COLORS = {
 }
 
 export default function RULGauge({ rul = 0, maxRul = 125, riskLevel = 'low' }) {
+    const { t } = useTranslation()
     const [animatedRul, setAnimatedRul] = useState(0)
 
     useEffect(() => {
@@ -71,7 +73,7 @@ export default function RULGauge({ rul = 0, maxRul = 125, riskLevel = 'low' }) {
             </svg>
             <div className="gauge-value">
                 <div className="gauge-number" style={{ color }}>{animatedRul}</div>
-                <div className="gauge-unit">ciclos restantes</div>
+                <div className="gauge-unit">{t('dashboard.remaining_cycles')}</div>
             </div>
         </div>
     )

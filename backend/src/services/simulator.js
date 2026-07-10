@@ -1,5 +1,6 @@
 const store = require('./dataStore');
 const mlBridge = require('./mlBridge');
+const { sendCriticalAlertEmail } = require('./emailService');
 
 let ioInstance = null;
 let intervalId = null;
@@ -13,10 +14,10 @@ function getBaseValues(engineId) {
             op_setting_1: -0.0007 + Math.random() * 0.005,
             op_setting_2: -0.0004 + Math.random() * 0.003,
             op_setting_3: 100.0,
-            sensor_1: 518.67,
-            sensor_2: 641.82,
-            sensor_3: 1589.70,
-            sensor_4: 1400.60,
+            sensor_1: 15.00,
+            sensor_2: 83.41,
+            sensor_3: 610.01,
+            sensor_4: 504.96,
             sensor_5: 14.62,
             sensor_6: 21.61,
             sensor_7: 554.36,
@@ -103,7 +104,10 @@ function startSimulator(io) {
                 predicted_rul: mlResult.predicted_rul,
                 confidence: mlResult.confidence,
                 risk_level: mlResult.risk_level,
-                model_version: mlResult.model_version
+                model_version: mlResult.model_version,
+                lower_95: mlResult.lower_95 ?? null,
+                upper_95: mlResult.upper_95 ?? null,
+                rul_trend: mlResult.rul_trend ?? null,
             });
 
             // 3. Crear alerta si aplica
@@ -117,7 +121,7 @@ function startSimulator(io) {
                     newAlertDb = await store.createAlert({
                         engine_id: targetEngine.id,
                         type: mlResult.risk_level === 'critical' ? 'critical' : 'warning',
-                        message: `ALERTA EN VIVO: RUL de ${targetEngine.name} cayo a ${mlResult.predicted_rul} ciclos.`,
+                        message: `LIVE ALERT: RUL of ${targetEngine.name} dropped to ${mlResult.predicted_rul} cycles.`,
                         predicted_rul: mlResult.predicted_rul
                     });
                 }
@@ -141,6 +145,11 @@ function startSimulator(io) {
 
             if (newAlertDb) {
                 ioInstance.emit('alert_new', newAlertDb);
+                
+                // Enviar correo si la alerta es critica
+                if (newAlertDb.risk_level === 'critical') {
+                    sendCriticalAlertEmail(targetEngine, newAlertDb);
+                }
             }
 
             ioInstance.emit('dashboard_update', {

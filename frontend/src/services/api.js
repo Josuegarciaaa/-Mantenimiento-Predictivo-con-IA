@@ -50,7 +50,8 @@ export const enginesAPI = {
     getById: (id) => api.get(`/engines/${id}`),
     create: (data) => api.post('/engines', data),
     update: (id, data) => api.put(`/engines/${id}`, data),
-    getHistory: (id) => api.get(`/engines/${id}/history`)
+    getHistory: (id) => api.get(`/engines/${id}/history`),
+    scheduleMaintenance: (id, data) => api.post(`/engines/${id}/schedule`, data)
 }
 
 export const sensorsAPI = {
@@ -63,7 +64,8 @@ export const predictionsAPI = {
     getAll: () => api.get('/predictions'),
     getByEngine: (engineId) => api.get(`/predictions/${engineId}`),
     generate: (engineId) => api.post('/predictions/predict', { engine_id: engineId }),
-    batch: () => api.post('/predictions/batch')
+    batch: () => api.post('/predictions/batch'),
+    simulate: (engineId, overrides) => api.post('/predictions/simulate', { engine_id: engineId, overrides })
 }
 
 export const alertsAPI = {
@@ -80,7 +82,8 @@ export const reportsAPI = {
 
 export const settingsAPI = {
     getModel: () => api.get('/settings/model'),
-    updateModel: (modelType) => api.post('/settings/model', { modelType })
+    updateModel: (modelType) => api.post('/settings/model', { modelType }),
+    getModelInfo: () => api.get('/settings/models/info')
 }
 
 export default api
