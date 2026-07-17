@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAppState } from '../../store/index.jsx'
 import Logo from './Logo.jsx'
@@ -65,6 +65,7 @@ const icons = {
 export default function Sidebar() {
     const { state, dispatch } = useAppState()
     const { t, i18n } = useTranslation()
+    const location = useLocation()
 
     function handleLogout() {
         dispatch({ type: 'LOGOUT' })
@@ -74,8 +75,17 @@ export default function Sidebar() {
         i18n.changeLanguage(lang)
     }
 
+    function handleNavClick() {
+        // Close sidebar on mobile after navigation
+        if (window.innerWidth <= 768) {
+            dispatch({ type: 'CLOSE_SIDEBAR' })
+        }
+    }
+
+    const sidebarClasses = `sidebar ${state.sidebarOpen ? 'sidebar-open' : ''}`
+
     return (
-        <aside className="sidebar">
+        <aside className={sidebarClasses}>
             <div className="sidebar-brand">
                 <div className="sidebar-logo">
                     <Logo size={28} color="var(--color-primary-light)" />
@@ -96,6 +106,7 @@ export default function Sidebar() {
                         className={({ isActive }) =>
                             `sidebar-link ${isActive ? 'sidebar-link-active' : ''}`
                         }
+                        onClick={handleNavClick}
                     >
                         <span className="sidebar-link-icon">{icons[item.icon]}</span>
                         <span className="sidebar-link-label">{t(`sidebar.${item.labelKey}`)}</span>
@@ -112,6 +123,7 @@ export default function Sidebar() {
                                 className={({ isActive }) =>
                                     `sidebar-link ${isActive ? 'sidebar-link-active' : ''}`
                                 }
+                                onClick={handleNavClick}
                             >
                                 <span className="sidebar-link-icon">{icons[item.icon]}</span>
                                 <span className="sidebar-link-label">{t(`sidebar.${item.labelKey}`)}</span>

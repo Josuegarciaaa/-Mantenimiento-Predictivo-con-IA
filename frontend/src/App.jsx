@@ -4,6 +4,8 @@ import { initSocket, disconnectSocket } from './services/socket.js'
 import { AppProvider, useAppState } from './store/index.jsx'
 import Sidebar from './components/common/Sidebar.jsx'
 import Header from './components/common/Header.jsx'
+import ToastContainer from './components/common/Toast.jsx'
+import ErrorBoundary from './components/common/ErrorBoundary.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import EngineDetailPage from './pages/EngineDetailPage.jsx'
 import AlertsPage from './pages/AlertsPage.jsx'
@@ -25,12 +27,21 @@ function AdminRoute({ children }) {
 }
 
 function ProtectedLayout() {
-    const { state } = useAppState()
+    const { state, dispatch } = useAppState()
     if (!state.isAuthenticated) {
         return <Navigate to="/login" replace />
     }
+
+    function handleOverlayClick() {
+        dispatch({ type: 'CLOSE_SIDEBAR' })
+    }
+
     return (
         <div className="app-layout">
+            {/* Mobile overlay */}
+            {state.sidebarOpen && (
+                <div className="sidebar-overlay" onClick={handleOverlayClick} />
+            )}
             <Sidebar />
             <div className="main-area">
                 <Header />
@@ -95,10 +106,13 @@ function AppRoutes() {
 
 export default function App() {
     return (
-        <AppProvider>
-            <BrowserRouter>
-                <AppRoutes />
-            </BrowserRouter>
-        </AppProvider>
+        <ErrorBoundary>
+            <AppProvider>
+                <BrowserRouter>
+                    <AppRoutes />
+                    <ToastContainer />
+                </BrowserRouter>
+            </AppProvider>
+        </ErrorBoundary>
     )
 }

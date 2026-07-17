@@ -39,7 +39,9 @@
         "day": "Día",
         "cancel": "Cancelar",
         "search_equipment": "Buscar equipo...",
-        "unknown_user": "Usuario Desconocido"
+        "unknown_user": "Usuario Desconocido",
+        "view_all": "Ver todo",
+        "refresh": "Actualizar"
     },
     "dashboard": {
         "algorithm_title": "Algoritmo Predictivo de IA",
@@ -62,7 +64,14 @@
         "no_alerts": "Sin alertas activas",
         "maintenance_label": "En mantenimiento",
         "cycles": "ciclos",
-        "remaining_cycles": "ciclos restantes"
+        "remaining_cycles": "ciclos restantes",
+        "risk_distribution": "Distribución de Riesgo",
+        "rul_distribution": "Distribución de RUL",
+        "recent_activity": "Actividad Reciente",
+        "no_recent_activity": "Sin actividad reciente",
+        "fleet_tracking": "Rastreo Global de Flota (En Vivo)",
+        "model_changed": "Modelo actualizado",
+        "active_model": "Modelo activo"
     },
     "risk": {
         "low": "Bajo",
@@ -124,7 +133,11 @@
         "all": "Todas",
         "active": "Activas",
         "critical": "Críticas",
-        "error_schedule": "Error al programar mantenimiento: "
+        "error_schedule": "Error al programar mantenimiento: ",
+        "critical_alert": "🚨 Alerta Crítica",
+        "warning_alert": "⚠ Advertencia",
+        "new_alert": "Nueva Alerta",
+        "acknowledged_success": "Alerta reconocida exitosamente"
     },
     "glossary": {
         "title": "Documentación Técnica",

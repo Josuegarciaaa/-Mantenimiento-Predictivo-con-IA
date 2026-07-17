@@ -255,3 +255,179 @@
         text-align: center;
     }
 }
+
+/* ========================
+   Fleet Analytics Section
+   ======================== */
+.fleet-analytics {
+    margin-top: var(--spacing-xl);
+}
+
+.fleet-analytics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+}
+
+@media (max-width: 768px) {
+    .fleet-analytics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Risk Distribution */
+.risk-distribution {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.risk-bar-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.risk-bar-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 70px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.risk-bar-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(39, 39, 42, 0.6);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    position: relative;
+}
+
+.risk-bar-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.risk-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+    border-radius: var(--radius-full);
+}
+
+.risk-bar-fill-low { background: linear-gradient(90deg, #10b981, #4ade80); }
+.risk-bar-fill-medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.risk-bar-fill-high { background: linear-gradient(90deg, #f97316, #fb923c); }
+.risk-bar-fill-critical { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+.risk-bar-count {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    min-width: 24px;
+    text-align: right;
+    font-family: var(--font-mono);
+}
+
+.risk-bar-pct {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    min-width: 36px;
+    text-align: right;
+}
+
+/* Activity Feed */
+.activity-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    transition: background var(--transition-fast);
+}
+
+.activity-item:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.activity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+}
+
+.activity-dot-prediction { background: var(--color-primary); box-shadow: 0 0 6px var(--color-primary); }
+.activity-dot-alert { background: var(--color-critical); box-shadow: 0 0 6px var(--color-critical); }
+.activity-dot-maintenance { background: var(--color-maintenance); box-shadow: 0 0 6px var(--color-maintenance); }
+
+.activity-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-text {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.activity-time {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* RUL Histogram */
+.rul-histogram {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 100px;
+    padding-top: var(--spacing-sm);
+}
+
+.rul-histogram-bar {
+    flex: 1;
+    min-width: 16px;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    cursor: default;
+}
+
+.rul-histogram-bar:hover {
+    filter: brightness(1.2);
+}
+
+.rul-histogram-labels {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.rul-histogram-label {
+    flex: 1;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    text-align: center;
+    font-family: var(--font-mono);
+}

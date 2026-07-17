@@ -2,6 +2,8 @@ import { createContext, useContext, useReducer } from 'react'
 
 const AppContext = createContext(null)
 
+let _toastId = 0
+
 const initialState = {
     user: JSON.parse(localStorage.getItem('user')) || null,
     token: localStorage.getItem('token') || null,
@@ -13,7 +15,9 @@ const initialState = {
     selectedEngine: null,
     activeModelType: 'auto',
     isLoading: false,
-    error: null
+    error: null,
+    toasts: [],
+    sidebarOpen: false
 }
 
 function appReducer(state, action) {
@@ -66,6 +70,18 @@ function appReducer(state, action) {
             }
         case 'CLEAR_ERROR':
             return { ...state, error: null }
+        case 'ADD_TOAST': {
+            const toast = { ...action.payload, id: ++_toastId }
+            // Keep max 5 toasts
+            const toasts = [toast, ...state.toasts].slice(0, 5)
+            return { ...state, toasts }
+        }
+        case 'REMOVE_TOAST':
+            return { ...state, toasts: state.toasts.filter(t => t.id !== action.payload) }
+        case 'TOGGLE_SIDEBAR':
+            return { ...state, sidebarOpen: !state.sidebarOpen }
+        case 'CLOSE_SIDEBAR':
+            return { ...state, sidebarOpen: false }
         default:
             return state
     }

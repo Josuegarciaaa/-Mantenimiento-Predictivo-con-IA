@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import Dashboard from '../components/dashboard/Dashboard.jsx'
-import Loading from '../components/common/Loading.jsx'
+import { DashboardSkeleton } from '../components/common/Skeleton.jsx'
 import { useAppState } from '../store/index.jsx'
 import { useTranslation } from 'react-i18next'
 import { dashboardAPI, enginesAPI, alertsAPI } from '../services/api.js'
@@ -41,6 +41,25 @@ export default function DashboardPage() {
             // Solo agregar si no existe ya en la lista
             if (!state.alerts.some(a => a.id === newAlert.id)) {
                 dispatch({ type: 'SET_ALERTS', payload: [newAlert, ...state.alerts] })
+
+                // Dispatch toast notification for new alerts
+                const toastType = newAlert.type === 'critical' ? 'error'
+                    : newAlert.type === 'warning' ? 'warning'
+                    : 'info'
+
+                dispatch({
+                    type: 'ADD_TOAST',
+                    payload: {
+                        type: toastType,
+                        title: newAlert.type === 'critical'
+                            ? t('alerts.critical_alert', '🚨 Alerta Crítica')
+                            : newAlert.type === 'warning'
+                            ? t('alerts.warning_alert', '⚠ Advertencia')
+                            : t('alerts.new_alert', 'Nueva Alerta'),
+                        message: newAlert.message,
+                        duration: newAlert.type === 'critical' ? 8000 : 5000
+                    }
+                })
             }
         })
 
@@ -80,12 +99,27 @@ export default function DashboardPage() {
                     acknowledged_at: new Date().toISOString()
                 }
             })
+            dispatch({
+                type: 'ADD_TOAST',
+                payload: {
+                    type: 'success',
+                    title: t('common.acknowledge', 'Reconocida'),
+                    message: t('alerts.acknowledged_success', 'Alerta reconocida exitosamente')
+                }
+            })
         } catch (err) {
             console.error(err)
+            dispatch({
+                type: 'ADD_TOAST',
+                payload: {
+                    type: 'error',
+                    message: err.message
+                }
+            })
         }
     }
 
-    if (state.isLoading) return <Loading text={t('common.loading')} />
+    if (state.isLoading) return <DashboardSkeleton />
 
     if (state.error) {
         return (
