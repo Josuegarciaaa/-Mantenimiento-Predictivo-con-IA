@@ -5,64 +5,78 @@
 [![React](https://img.shields.io/badge/React-18-61DAFB.svg)](https://reactjs.org)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://docker.com)
 
-> Una plataforma de nivel industrial disenada para predecir fallos en maquinaria pesada antes de que ocurran. Monitoreamos telemetria en tiempo real, calculamos el RUL (Remaining Useful Life) y, lo mas importante, traducimos esos datos tecnicos a impacto financiero real (ROI) para el negocio.
+[English](#english) | [Espanol](#espanol)
 
 ---
 
-## De que trata este proyecto?
+<a name="english"></a>
+## 🇬🇧 English
 
-En el mundo real del mantenimiento industrial (Industry 4.0), arreglar un motor despues de que explota es demasiado caro. Por otro lado, hacerle mantenimiento preventivo cada mes "por si acaso" tambien tira mucho dinero a la basura. 
+### What is this project?
+In industrial maintenance, fixing a machine after it breaks is incredibly expensive, but doing preventive maintenance too early also wastes a lot of money. 
 
-Este proyecto ataca ese problema de raiz usando Machine Learning sobre el famoso dataset Turbofan C-MAPSS de la NASA. Pero ojo, esto no es solo un script de Python escupiendo predicciones en la consola. Construimos una plataforma completa que incluye:
-- Un **Gemelo Digital (Digital Twin)** en vivo que reacciona a la telemetria.
-- Deteccion de anomalias tipo **Zero-Day** para encontrar fallos que ni el modelo principal ha visto jamas.
-- Un dashboard enfocado en **Fleet Economics** que calcula cuanto dinero le estamos ahorrando a la empresa al evitar tiempos de inactividad (Downtime).
+This project tackles that specific problem using Machine Learning on the NASA C-MAPSS Turbofan dataset. We didn't just build a Python script to print predictions; we built a full-stack, production-ready platform that predicts the Remaining Useful Life (RUL) of jet engines and translates those cycles into actual dollars saved.
 
-Todo corre en contenedores de Docker, tiene un pipeline interno de MLOps para reentrenar modelos "on-the-fly", y el Frontend es una PWA (Progressive Web App) instalable de forma nativa para que los ingenieros lleven el dashboard en su celular directo al piso de produccion.
+### Key Features
+- **Fleet Economics Dashboard**: Translates raw telemetry and RUL predictions into business metrics (ROI, Unplanned Downtime Avoided, Risk Exposure).
+- **Digital Twin Simulator**: A reactive 3D/SVG interface that changes based on live sensor data (e.g., HPC temperatures). It includes a "what-if" simulator to inject faults and see how the ML model reacts in real-time.
+- **Zero-Day Anomaly Detection**: Unsupervised learning (IsolationForest) running in parallel to catch weird patterns that the main Deep Learning model wasn't explicitly trained for.
+- **Continuous Learning (MLOps)**: Built-in MLflow integration and a retraining pipeline. You can literally click a button in the dashboard to retrain the XGBoost ensemble on new data.
+- **PWA Ready**: The React frontend works as a Progressive Web App. Engineers can install the dashboard directly on their phones or tablets to use it on the factory floor.
 
-## Lo que hay bajo el capo (Arquitectura)
+### Tech Stack
+- **AI/ML**: Python, TensorFlow/Keras, XGBoost, Scikit-learn.
+- **Backend**: Node.js + Express handling WebSockets for live data streaming.
+- **Frontend**: React, Recharts for financial plotting, Vite.
+- **DevOps**: Docker, Docker Compose, MLflow, PostgreSQL.
 
-```text
-[Sensores NASA] ---> [ETL & ML Pipeline (Python/TensorFlow/MLflow)] 
-                            |
-                     [Backend Node.js] <---> [PostgreSQL]
-                            |
-            [React Frontend (PWA, Digital Twin, Economics)]
-```
-
-## Tech Stack Principal
-
-- **Inteligencia Artificial**: Python, TensorFlow, XGBoost, Scikit-learn, IsolationForest (Anomalias).
-- **Backend**: Node.js con Express, integracion por WebSockets para recibir la telemetria en vivo sin delay.
-- **Frontend**: React, Recharts (para graficas financieras hermosas), Vite (con plugin PWA).
-- **MLOps & DevOps**: MLflow para trackear los experimentos y modelos, y Docker & Docker Compose para levantar toda esta locura con un solo comando.
-- **Base de Datos**: PostgreSQL pura y dura.
-
-## Features Clave que marcan la diferencia
-
-- **Fleet Economics Dashboard**: No mas graficas aburridas de "voltaje vs tiempo". Transformamos el RUL en metricas de ROI y dolares salvados en la mesa.
-- **Digital Twin**: Visor reactivo que te muestra el estado interno del motor dependiendo de la temperatura y el desgaste real.
-- **Zero-Day Anomaly Detection**: Un sistema no supervisado que atrapa patrones raros. Si el motor tose raro, lo detectamos.
-- **PWA Ready**: Instala el dashboard como una app nativa en iOS, Android o Windows para una experiencia fluida.
-- **Copiloto AI**: Un pequeño chat integrado para hacer consultas rapidas del estatus de los equipos.
-
-## Como levantar todo esto localmente?
-
-Si tienes Docker instalado en tu maquina, es super sencillo. Solo clona este repo, abre tu terminal y lanza:
-
+### How to run it
+Make sure you have Docker installed. Clone the repo and just run:
 ```bash
 docker compose up --build -d
 ```
-
-Ve por un cafe mientras Docker baja las imagenes e instala las dependencias de Python y Node. Cuando termine, tienes todo mapeado asi:
-- **Frontend Dashboard**: `http://localhost:5173`
-- **MLflow Tracking**: `http://localhost:5001`
+Wait a couple of minutes for the dependencies to install. Then access:
+- **Dashboard**: `http://localhost:5173`
+- **MLflow UI**: `http://localhost:5001`
 - **Backend API**: `http://localhost:3001`
 
-## Sobre el Dataset Original
+---
 
-Usamos los datos publicos de la NASA (**C-MAPSS Turbofan Engine Degradation Simulation**). Basicamente es el estandar de oro de la industria para probar algoritmos de mantenimiento predictivo. Trae ciclos completos de vida de motores jet corriendo hasta que se rompen bajo un monton de condiciones operativas distintas.
+<a name="espanol"></a>
+## 🇪🇸 Espanol
 
-## Licencia
+### De que va este proyecto?
+En el mantenimiento industrial, arreglar una maquina despues de que revienta cuesta muchisimo dinero. Pero hacer mantenimiento preventivo cada dos meses "por si acaso" tambien es tirar plata a la basura.
 
-Sientete libre de usar, romper, forbear y mejorar este codigo bajo los terminos de la licencia MIT.
+Este proyecto ataca exactamente ese problema usando Machine Learning sobre el famoso dataset Turbofan C-MAPSS de la NASA. No armamos nomas un script de Python que imprima predicciones en consola; construimos una plataforma completa tipo Full-Stack que predice la Vida Util Restante (RUL) de los motores y traduce todo eso a dolares ahorrados para el negocio.
+
+### Lo mas destacable del sistema
+- **Fleet Economics Dashboard**: Pasa la telemetria cruda y el RUL a metricas de negocio reales (Retorno de Inversion, Costo evitado por downtime, Riesgo financiero actual).
+- **Simulador de Gemelo Digital**: Una interfaz SVG que cambia en tiempo real con los datos de los sensores. Trae un simulador para inyectar fallos manualmente y ver como el modelo de Machine Learning reacciona en vivo.
+- **Deteccion de Anomalias Zero-Day**: Un modelo no supervisado (IsolationForest) que corre en paralelo para atrapar cosas raras que el modelo principal de Deep Learning no haya visto en el entrenamiento.
+- **Pipeline de MLOps**: Todo esta conectado a MLflow. Hay un boton en el panel de admin que levanta un proceso en background para reentrenar el ensamble de XGBoost con datos nuevos.
+- **Soporte PWA**: El frontend en React es una Aplicacion Web Progresiva. Los ingenieros pueden instalar el dashboard como si fuera una app nativa en el celular para llevarlo a la planta.
+
+### Stack Tecnologico
+- **IA/ML**: Python, TensorFlow/Keras, XGBoost, Scikit-learn.
+- **Backend**: Node.js + Express usando WebSockets para streamear los datos en vivo.
+- **Frontend**: React, Recharts para las graficas de finanzas, Vite.
+- **Infraestructura**: Docker, Docker Compose, MLflow para trackear experimentos, PostgreSQL.
+
+### Como levantarlo localmente
+Asumiendo que tienes Docker instalado, clona el repo, abre la terminal en la carpeta y tira este comando:
+```bash
+docker compose up --build -d
+```
+Dale un par de minutos en lo que descarga las imagenes y compila Node/Python. Cuando termine, entra a:
+- **Dashboard (Frontend)**: `http://localhost:5173`
+- **Panel de MLflow**: `http://localhost:5001`
+- **Backend API**: `http://localhost:3001`
+
+---
+
+## Dataset Info
+Powered by the **NASA C-MAPSS Turbofan Engine Degradation Simulation Dataset**. It's pretty much the industry standard for testing predictive maintenance models.
+
+## License
+MIT License. Feel free to fork, use, and modify.
