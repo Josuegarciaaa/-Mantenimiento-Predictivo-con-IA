@@ -14,5 +14,6 @@ const reportController = require('../controllers/reportController');
 
 router.get('/pdf/:engineId', reportController.generatePDF);
 router.get('/summary', reportController.getSummary);
+router.get('/economics', reportController.getEconomics);
 
 module.exports = router;

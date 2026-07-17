@@ -8,9 +8,25 @@ const getSensorData = async (req, res) => {
         if (!engine) {
             return errorResponse(res, 'Motor no encontrado', 404);
         }
-        const limit = req.query.limit ? parseInt(req.query.limit) : null;
-        const readings = await store.getSensorReadings(engineId, limit);
-        successResponse(res, { engine_id: engine.engine_id, total: readings.length, readings });
+        let limit = req.query.limit ? parseInt(req.query.limit) : null;
+        let readings = await store.getSensorReadings(engineId, limit);
+        
+        // Downsampling inteligente si hay demasiados puntos
+        const MAX_POINTS = 200;
+        if (readings.length > MAX_POINTS) {
+            const step = Math.ceil(readings.length / MAX_POINTS);
+            const downsampled = [];
+            for (let i = 0; i < readings.length; i += step) {
+                downsampled.push(readings[i]);
+            }
+            // hay que asegurarnos de incluir siempre el ultimo registro
+            if (downsampled[downsampled.length - 1].cycle !== readings[readings.length - 1].cycle) {
+                downsampled.push(readings[readings.length - 1]);
+            }
+            readings = downsampled;
+        }
+
+        successResponse(res, { engine_id: engine.engine_id, total: readings.length, is_downsampled: true, readings });
     } catch (err) {
         errorResponse(res, err.message);
     }

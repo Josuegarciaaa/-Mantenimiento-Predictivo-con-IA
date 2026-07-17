@@ -80,7 +80,7 @@ async function predictRUL(sensorReading, totalCycles) {
 function fallbackSimulation(sensorReading, totalCycles) {
     const s3  = sensorReading.sensor_3  || 610;    // Temp HPC outlet (sube con desgaste)
     const s9  = sensorReading.sensor_9  || 9046;   // Velocidad core (baja con desgaste)
-    const s11 = sensorReading.sensor_11 || 47.5;   // Presion estática HPC (baja con desgaste)
+    const s11 = sensorReading.sensor_11 || 47.5;   // Presion estatica HPC (baja con el desgaste normal)
 
     const tempScore     = Math.max(0, (650 - s3) / 50);
     const coreScore     = Math.max(0, (9100 - s9) / 80);
@@ -139,6 +139,22 @@ async function getModelInfo() {
     }
 }
 
+/**
+ * Dispara el proceso de reentrenamiento del modelo.
+ */
+async function triggerRetrain() {
+    try {
+        const response = await fetch(`${PYTHON_SERVICE_URL}/retrain`, {
+            method: 'POST'
+        });
+        if (!response.ok) throw new Error('Fallo al iniciar reentrenamiento');
+        return await response.json();
+    } catch (err) {
+        console.error('Error triggereando reentrenamiento:', err);
+        throw err;
+    }
+}
+
 function classifyRiskLevel(rul) {
     if (rul <= 15) return 'critical';
     if (rul <= 30) return 'high';
@@ -172,5 +188,6 @@ module.exports = {
     classifyRiskLevel,
     setModelType,
     getModelType,
-    simulateDigitalTwin
+    simulateDigitalTwin,
+    triggerRetrain
 };

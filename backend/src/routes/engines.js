@@ -22,6 +22,7 @@ router.get('/:id', engineController.getEngineById);
 router.post('/', requireRole('admin'), engineController.createEngine);
 router.put('/:id', requireRole('admin'), engineController.updateEngine);
 router.post('/:id/schedule', requireRole('admin'), engineController.scheduleMaintenance);
+router.post('/:id/fault', requireRole('admin'), engineController.injectFault);
 router.get('/:id/history', engineController.getEngineHistory);
 
 module.exports = router;

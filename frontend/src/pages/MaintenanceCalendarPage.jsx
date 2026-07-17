@@ -37,7 +37,7 @@ export default function MaintenanceCalendarPage() {
                     .map((e, index) => ({
                         id: index,
                         title: `${t('calendar.maintenance')}: ${e.name}`,
-                        start: new Date(), // En un caso real vendría de la BD
+                        start: new Date(), // en produccion esto vendria de la base de datos
                         end: new Date(new Date().setHours(new Date().getHours() + 4)),
                         resource: e
                     }))

@@ -1,4 +1,5 @@
 const store = require('../services/dataStore');
+const simulator = require('../services/simulator');
 const { successResponse, errorResponse } = require('../utils/response');
 
 const getAllEngines = async (req, res) => {
@@ -89,4 +90,23 @@ const scheduleMaintenance = async (req, res) => {
     }
 };
 
-module.exports = { getAllEngines, getEngineById, createEngine, updateEngine, getEngineHistory, scheduleMaintenance };
+const injectFault = async (req, res) => {
+    try {
+        const { fault_mode } = req.body;
+        const engineId = parseInt(req.params.id);
+        
+        const engine = await store.getEngineById(engineId);
+        if (!engine) {
+            return errorResponse(res, 'Motor no encontrado', 404);
+        }
+
+        // Inyectar falla en el simulador backend
+        simulator.injectFault(engineId, fault_mode);
+        
+        successResponse(res, { message: `Falla [${fault_mode || 'Ninguna'}] inyectada al motor ${engineId}`, engineId, fault_mode });
+    } catch (err) {
+        errorResponse(res, err.message);
+    }
+};
+
+module.exports = { getAllEngines, getEngineById, createEngine, updateEngine, getEngineHistory, scheduleMaintenance, injectFault };

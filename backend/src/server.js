@@ -96,7 +96,14 @@ app.get('/api/settings/models/info', verifyToken, requireRole('admin'), async (r
         res.status(500).json({ success: false, error: { message: err.message } });
     }
 });
-
+app.post('/api/settings/models/retrain', verifyToken, requireRole('admin'), async (req, res) => {
+    try {
+        const result = await mlBridge.triggerRetrain();
+        res.json({ success: true, data: result });
+    } catch (err) {
+        res.status(500).json({ success: false, error: { message: err.message } });
+    }
+});
 app.post('/api/settings/model', verifyToken, requireRole('admin'), async (req, res) => {
     const { modelType } = req.body;
     if (!['auto', 'rf', 'lstm'].includes(modelType)) {

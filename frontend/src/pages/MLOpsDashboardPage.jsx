@@ -10,6 +10,7 @@ export default function MLOpsDashboardPage() {
     const [modelInfo, setModelInfo] = useState(null)
     const [predictions, setPredictions] = useState([])
     const [loading, setLoading] = useState(true)
+    const [retraining, setRetraining] = useState(false)
     const [error, setError] = useState('')
 
     useEffect(() => {
@@ -24,7 +25,7 @@ export default function MLOpsDashboardPage() {
                 predictionsAPI.getAll()
             ])
             setModelInfo(modelRes.data)
-            // Tomar las últimas 20 predicciones para la gráfica de A/B Testing
+            // agarrar las ultimas 20 predicciones para graficar el A/B Testing
             const history = (predsRes.data || []).slice(-20).map(p => ({
                 time: moment(p.prediction_time).format('HH:mm:ss'),
                 XGBoost: p.predicted_rul,
@@ -35,6 +36,21 @@ export default function MLOpsDashboardPage() {
             setError('Error loading MLOps data: ' + err.message)
         } finally {
             setLoading(false)
+        }
+    }
+
+    async function handleRetrain() {
+        if (!window.confirm(t('mlops.confirm_retrain', '¿Estás seguro de que deseas forzar el reentrenamiento de los modelos? Este proceso puede tardar varios minutos y consumirá recursos del servidor.'))) {
+            return;
+        }
+        try {
+            setRetraining(true);
+            const res = await settingsAPI.retrainModels();
+            alert(res.data?.message || 'Reentrenamiento iniciado en background.');
+        } catch (err) {
+            alert('Error iniciando reentrenamiento: ' + err.message);
+        } finally {
+            setRetraining(false);
         }
     }
 
@@ -52,9 +68,19 @@ export default function MLOpsDashboardPage() {
                     <h1 className="page-title">{t('mlops.title')}</h1>
                     <p className="page-subtitle">{t('mlops.subtitle')}</p>
                 </div>
-                <button onClick={loadModelInfo} className="btn btn-secondary">
-                    {t('common.refresh')}
-                </button>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <button 
+                        onClick={handleRetrain} 
+                        className="btn btn-primary" 
+                        disabled={retraining}
+                        style={{ background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none' }}
+                    >
+                        {retraining ? 'Iniciando...' : '⚙️ Forzar Reentrenamiento'}
+                    </button>
+                    <button onClick={loadModelInfo} className="btn btn-secondary">
+                        {t('common.refresh')}
+                    </button>
+                </div>
             </header>
 
             <div className="mlops-grid">
@@ -164,7 +190,7 @@ export default function MLOpsDashboardPage() {
                 <div className="metrics-grid" style={{ marginTop: 'var(--spacing-md)' }}>
                     {(() => {
                         const r2 = xgbMetrics.r2_score || 0.5;
-                        const failuresPrevented = Math.round(r2 * 150); // Estimación basada en rendimiento
+                        const failuresPrevented = Math.round(r2 * 150); // estimacion basica de prevencion
                         const savings = failuresPrevented * 1500000;
                         const preventCost = failuresPrevented * 50000 + ((1-r2) * 50 * 10000);
                         const netSavings = savings - preventCost;

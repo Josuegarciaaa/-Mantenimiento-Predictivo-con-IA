@@ -17,6 +17,7 @@ import UsersAdminPage from './pages/UsersAdminPage.jsx'
 import MaintenanceCalendarPage from './pages/MaintenanceCalendarPage.jsx'
 import GlossaryPage from './pages/GlossaryPage.jsx'
 import MLOpsDashboardPage from './pages/MLOpsDashboardPage.jsx'
+import FleetEconomicsPage from './pages/FleetEconomicsPage.jsx'
 
 function AdminRoute({ children }) {
     const { state } = useAppState()
@@ -56,6 +57,7 @@ function ProtectedLayout() {
                         <Route path="/engines-admin" element={<AdminRoute><EnginesAdminPage /></AdminRoute>} />
                         <Route path="/settings" element={<AdminRoute><SettingsPage /></AdminRoute>} />
                         <Route path="/mlops" element={<AdminRoute><MLOpsDashboardPage /></AdminRoute>} />
+                        <Route path="/economics" element={<AdminRoute><FleetEconomicsPage /></AdminRoute>} />
                         <Route path="/users" element={<AdminRoute><UsersAdminPage /></AdminRoute>} />
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>

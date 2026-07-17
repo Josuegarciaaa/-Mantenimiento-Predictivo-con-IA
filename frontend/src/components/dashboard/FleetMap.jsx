@@ -64,17 +64,29 @@ export default function FleetMap({ engines }) {
     useEffect(() => {
         if (!engines) return;
 
-        // asignar ubicaciones aleatorias o fijas si no tienen
-        const markers = engines.map((eng, index) => {
-            const loc = LOCATIONS[index % LOCATIONS.length];
-            return {
-                ...eng,
-                lat: loc.lat + (Math.random() - 0.5) * 0.1, // pequena dispersion
-                lng: loc.lng + (Math.random() - 0.5) * 0.1,
-                plantName: loc.name
-            };
+        setEngineMarkers(prevMarkers => {
+            return engines.map((eng, index) => {
+                // si ya hay un marcador para este motor, lo dejamos ahi para que no ande saltando
+                const existing = prevMarkers.find(m => m.id === eng.id);
+                if (existing) {
+                    return {
+                        ...eng,
+                        lat: existing.lat,
+                        lng: existing.lng,
+                        plantName: existing.plantName
+                    };
+                }
+                
+                // motor nuevo, le asignamos una ubicacion
+                const loc = LOCATIONS[index % LOCATIONS.length];
+                return {
+                    ...eng,
+                    lat: loc.lat + (Math.random() - 0.5) * 0.1, // poquita dispersion para que no se encimen
+                    lng: loc.lng + (Math.random() - 0.5) * 0.1,
+                    plantName: loc.name
+                };
+            });
         });
-        setEngineMarkers(markers);
     }, [engines]);
 
     return (
@@ -94,7 +106,7 @@ export default function FleetMap({ engines }) {
                             position={[engine.lat, engine.lng]}
                             icon={getCustomIcon(engine.status, isAnomalous)}
                         >
-                            <Popup>
+                            <Popup autoPan={false}>
                                 <div style={{ minWidth: '200px', fontFamily: 'Inter', color: '#e2e8f0' }}>
                                     <h4 style={{ margin: '0 0 8px 0', color: '#f8fafc', fontSize: '1.1rem', fontWeight: '700', letterSpacing: '0.5px' }}>{engine.name}</h4>
                                     <div style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>

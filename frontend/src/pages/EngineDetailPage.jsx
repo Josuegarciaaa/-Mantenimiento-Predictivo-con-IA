@@ -18,6 +18,7 @@ import html2canvas from 'html2canvas'
 import moment from 'moment'
 import CopilotChat from '../components/chat/CopilotChat.jsx'
 import DigitalTwinSimulator from '../components/charts/DigitalTwinSimulator.jsx'
+import EngineSchematic from '../components/dashboard/EngineSchematic.jsx'
 
 export default function EngineDetailPage() {
     const { id } = useParams()
@@ -241,6 +242,10 @@ export default function EngineDetailPage() {
         : null
 
     const latestSensor = sensorData?.length > 0 ? sensorData[sensorData.length - 1] : null;
+    
+    const currentRpm = latestSensor?.sensor_8 || 0;
+    const currentHpcTemp = latestSensor?.sensor_3 || 0;
+    const isAnomalous = engine.anomaly_check?.multivariate_anomaly || false;
 
     return (
         <div className="fade-in">
@@ -443,16 +448,33 @@ export default function EngineDetailPage() {
                 </div>
             </div>
 
-            {/* explainable ai (shap) section */}
-            <div className="card" style={{ marginBottom: 'var(--spacing-xl)' }}>
-                <div className="card-header">
-                    <span className="card-title">{t('engineDetail.xai_title', 'explainable ai (xai) - factores de degradacion')}</span>
-                    <Tooltip content={t('engineDetail.xai_tooltip', 'valores shap que explican cuantos ciclos aporta (verde) o resta (rojo) cada sensor al rul actual')}>
-                        <span style={{ marginLeft: '6px', fontSize: '12px', color: 'var(--color-primary)' }}>i</span>
-                    </Tooltip>
+            <div className="grid-2" style={{ marginBottom: 'var(--spacing-xl)', gap: 'var(--spacing-xl)', alignItems: 'stretch' }}>
+                {/* GEMELO DIGITAL 3D / ESQUEMATICO */}
+                <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <div className="card-header">
+                        <span className="card-title">Gemelo Digital en Vivo (Turbofan)</span>
+                    </div>
+                    <div style={{ flex: 1, padding: 'var(--spacing-md) 0' }}>
+                        <EngineSchematic 
+                            rpm={currentRpm} 
+                            hpcTemp={currentHpcTemp} 
+                            isAnomalous={isAnomalous} 
+                            riskLevel={riskLevel} 
+                        />
+                    </div>
                 </div>
-                <div style={{ padding: 'var(--spacing-md) 0' }}>
-                    <ShapChart shapValues={latestPred?.shap_values} height={250} />
+
+                {/* explainable ai (shap) section */}
+                <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <div className="card-header">
+                        <span className="card-title">{t('engineDetail.xai_title', 'explainable ai (xai) - factores de degradacion')}</span>
+                        <Tooltip content={t('engineDetail.xai_tooltip', 'valores shap que explican cuantos ciclos aporta (verde) o resta (rojo) cada sensor al rul actual')}>
+                            <span style={{ marginLeft: '6px', fontSize: '12px', color: 'var(--color-primary)' }}>i</span>
+                        </Tooltip>
+                    </div>
+                    <div style={{ flex: 1, padding: 'var(--spacing-md) 0' }}>
+                        <ShapChart shapValues={latestPred?.shap_values} height={300} />
+                    </div>
                 </div>
             </div>
 
@@ -466,7 +488,51 @@ export default function EngineDetailPage() {
 
             {/* digital twin simulator */}
             {latestSensor && (
-                <DigitalTwinSimulator engineId={id} initialData={latestSensor} />
+                <div className="grid-2" style={{ marginBottom: 'var(--spacing-xl)', gap: 'var(--spacing-xl)' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                        <DigitalTwinSimulator engineId={id} initialData={latestSensor} />
+                    </div>
+                    
+                    {/* fault injection simulator */}
+                    <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                        <div className="card-header">
+                            <span className="card-title">Inyección de Fallas (Zero-Day Simulator)</span>
+                        </div>
+                        <div style={{ padding: 'var(--spacing-md) 0', flex: 1 }}>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: 'var(--spacing-lg)' }}>
+                                Simula fallas catastróficas en el motor virtual para probar la resiliencia del modelo de IA (Isolation Forest). El sistema debería detectar la anomalía de inmediato.
+                            </p>
+                            
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                <button 
+                                    className="btn btn-secondary" 
+                                    style={{ justifyContent: 'space-between', padding: '12px' }}
+                                    onClick={() => enginesAPI.injectFault(id, 'hpc_degradation')}
+                                >
+                                    <span>🔥 Degradación Súbita HPC</span>
+                                    <span style={{ color: 'var(--text-muted)' }}>Temp ++ / Presion --</span>
+                                </button>
+                                
+                                <button 
+                                    className="btn btn-secondary"
+                                    style={{ justifyContent: 'space-between', padding: '12px' }}
+                                    onClick={() => enginesAPI.injectFault(id, 'fan_failure')}
+                                >
+                                    <span>⚙ Falla de Rodamientos (Fan)</span>
+                                    <span style={{ color: 'var(--text-muted)' }}>RPM --</span>
+                                </button>
+
+                                <button 
+                                    className="btn btn-primary"
+                                    style={{ justifyContent: 'center', padding: '12px', marginTop: '10px', background: 'rgba(16, 185, 129, 0.15)', color: '#4ade80', border: '1px solid rgba(16, 185, 129, 0.3)' }}
+                                    onClick={() => enginesAPI.injectFault(id, null)}
+                                >
+                                    🔄 Restablecer Operación Normal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
 
             <CopilotChat 

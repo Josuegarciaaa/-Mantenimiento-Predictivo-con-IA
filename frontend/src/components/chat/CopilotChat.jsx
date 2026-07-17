@@ -23,7 +23,7 @@ export default function CopilotChat({ engineContext }) {
     }, [messages, isOpen]);
 
     const formatMarkdown = (text) => {
-        // Un parseador muy simple para negritas y saltos de línea para simular Markdown
+        // parseador super basico para negritas y saltos de linea para que se vea como markdown
         let html = text
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')

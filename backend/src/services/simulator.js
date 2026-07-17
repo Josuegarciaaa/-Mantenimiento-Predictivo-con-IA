@@ -5,8 +5,16 @@ const { sendCriticalAlertEmail } = require('./emailService');
 let ioInstance = null;
 let intervalId = null;
 
+// Fallas activas por motor: { engineId: 'hpc_degradation' | 'fan_failure' | null }
+const activeFaults = {};
+
 // Valores base para simulacion por motor
 const baseValues = {};
+
+function injectFault(engineId, faultMode) {
+    activeFaults[engineId] = faultMode;
+    console.log(`Simulador: Falla [${faultMode}] inyectada al motor ${engineId}`);
+}
 
 function getBaseValues(engineId) {
     if (!baseValues[engineId]) {
@@ -63,9 +71,17 @@ function startSimulator(io) {
             const base = getBaseValues(targetEngine.id);
             
             // Simular degradacion exponencial si pasa de los 150 ciclos
-            const degradationRatio = Math.min(1, nextCycle / 350); 
+            let degradationRatio = Math.min(1, nextCycle / 350); 
+            
+            // Aplicar inyeccion de fallas si el motor tiene una activa
+            const fault = activeFaults[targetEngine.id];
+            if (fault === 'hpc_degradation') {
+                degradationRatio *= 2.5; // El HPC se degrada super rapido
+            } else if (fault === 'fan_failure') {
+                degradationRatio *= 3.0; // El Fan falla agresivamente
+            }
 
-            const newReading = {
+            let newReading = {
                 engine_id: targetEngine.id,
                 cycle: nextCycle,
                 op_setting_1: base.op_setting_1 + (Math.random() - 0.5) * 0.001,
@@ -94,6 +110,15 @@ function startSimulator(io) {
                 sensor_21: base.sensor_21 + degradationRatio * 0.08 + (Math.random() - 0.5) * 0.01
             };
 
+            // Efectos especificos de las fallas inyectadas
+            if (fault === 'hpc_degradation') {
+                newReading.sensor_3 += 50 + Math.random() * 20; // Temp HPC sube brutalmente
+                newReading.sensor_11 -= 3 + Math.random(); // Presion baja abruptamente
+            } else if (fault === 'fan_failure') {
+                newReading.sensor_8 -= 150 + Math.random() * 50; // Fan speed cae en picada
+                newReading.sensor_13 -= 100 + Math.random() * 30; // Fan speed corregido cae
+            }
+
             // 1. Guardar lectura de sensor
             const readingDb = await store.addSensorReading(newReading);
 
@@ -112,10 +137,26 @@ function startSimulator(io) {
 
             // 3. Crear alerta si aplica
             let newAlertDb = null;
-            if (mlResult.risk_level === 'critical' || mlResult.risk_level === 'high') {
-                // Checar si ya hay una alerta activa no reconocida para este motor para no saturar
+            
+            // Revisar si hay una anomalia Zero-Day (Isolation Forest / Unsupervised)
+            const hasZeroDayAnomaly = mlResult.anomaly_check && (mlResult.anomaly_check.multivariate_anomaly || mlResult.anomaly_check.is_anomalous);
+            
+            if (hasZeroDayAnomaly) {
+                // Generar alerta de Zero-Day de maxima prioridad
                 const activeAlerts = await store.getAlerts({ engine_id: targetEngine.id, active: true });
-                const alreadyAlerted = activeAlerts.some(a => a.type === (mlResult.risk_level === 'critical' ? 'critical' : 'warning'));
+                const alreadyAlerted = activeAlerts.some(a => a.message.includes('Zero-Day'));
+                if (!alreadyAlerted) {
+                    newAlertDb = await store.createAlert({
+                        engine_id: targetEngine.id,
+                        type: 'critical',
+                        message: `ZERO-DAY ANOMALY DETECTED: Thermodynamic pattern out of distribution. Immediate inspection required.`,
+                        predicted_rul: mlResult.predicted_rul
+                    });
+                }
+            } else if (mlResult.risk_level === 'critical' || mlResult.risk_level === 'high') {
+                // Alerta normal por degradacion RUL
+                const activeAlerts = await store.getAlerts({ engine_id: targetEngine.id, active: true });
+                const alreadyAlerted = activeAlerts.some(a => a.type === (mlResult.risk_level === 'critical' ? 'critical' : 'warning') && !a.message.includes('Zero-Day'));
                 
                 if (!alreadyAlerted) {
                     newAlertDb = await store.createAlert({
@@ -171,4 +212,4 @@ function stopSimulator() {
     }
 }
 
-module.exports = { startSimulator, stopSimulator };
+module.exports = { startSimulator, stopSimulator, injectFault };

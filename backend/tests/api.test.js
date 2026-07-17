@@ -69,7 +69,7 @@ describe('GET /', () => {
     });
 });
 
-// ─── Autenticación ─────────────────────────────────────────────────────────────
+// ─── Autenticacion ─────────────────────────────────────────────────────────────
 
 describe('POST /api/auth/login', () => {
     it('debe autenticar un usuario válido', async () => {

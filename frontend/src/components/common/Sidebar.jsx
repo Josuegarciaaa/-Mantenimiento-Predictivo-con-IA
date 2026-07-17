@@ -13,6 +13,7 @@ const navItems = [
 ]
 
 const adminItems = [
+    { path: '/economics', labelKey: 'economics', icon: 'grid' },
     { path: '/engines-admin', labelKey: 'engines', icon: 'engine' },
     { path: '/mlops', labelKey: 'mlops', icon: 'settings' },
     { path: '/settings', labelKey: 'settings', icon: 'settings' },

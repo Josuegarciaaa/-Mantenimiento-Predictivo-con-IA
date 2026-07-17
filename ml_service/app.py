@@ -527,5 +527,33 @@ def health():
     })
 
 
+@app.route('/retrain', methods=['POST'])
+def retrain_models():
+    """
+    Inicia el reentrenamiento de los modelos en background usando los datos más recientes.
+    """
+    import threading
+    import subprocess
+    
+    def run_training():
+        try:
+            print("Iniciando reentrenamiento en background...")
+            subprocess.run(["python", "train_models.py"], check=True)
+            print("Reentrenamiento finalizado con éxito. Recargando modelos...")
+            load_all_models()
+        except Exception as e:
+            print(f"Error durante el reentrenamiento: {e}")
+
+    thread = threading.Thread(target=run_training)
+    thread.daemon = True
+    thread.start()
+    
+    return jsonify({
+        'status': 'started',
+        'message': 'Pipeline de reentrenamiento iniciado en background.'
+    })
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Usar el puerto 5000 por defecto
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)

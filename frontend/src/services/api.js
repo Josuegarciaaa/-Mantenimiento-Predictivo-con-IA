@@ -57,7 +57,8 @@ export const enginesAPI = {
     create: (data) => api.post('/engines', data),
     update: (id, data) => api.put(`/engines/${id}`, data),
     getHistory: (id) => api.get(`/engines/${id}/history`),
-    scheduleMaintenance: (id, data) => api.post(`/engines/${id}/schedule`, data)
+    scheduleMaintenance: (id, data) => api.post(`/engines/${id}/schedule`, data),
+    injectFault: (id, faultMode) => api.post(`/engines/${id}/fault`, { fault_mode: faultMode })
 }
 
 export const sensorsAPI = {
@@ -83,13 +84,15 @@ export const alertsAPI = {
 
 export const reportsAPI = {
     getPDF: (engineId) => api.get(`/reports/pdf/${engineId}`, { responseType: 'blob' }),
-    getSummary: () => api.get('/reports/summary')
+    getSummary: () => api.get('/reports/summary'),
+    getEconomics: () => api.get('/reports/economics')
 }
 
 export const settingsAPI = {
     getModel: () => api.get('/settings/model'),
     updateModel: (modelType) => api.post('/settings/model', { modelType }),
-    getModelInfo: () => api.get('/settings/models/info')
+    getModelInfo: () => api.get('/settings/models/info'),
+    retrainModels: () => api.post('/settings/models/retrain')
 }
 
 export default api

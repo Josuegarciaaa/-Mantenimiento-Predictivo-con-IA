@@ -11,6 +11,7 @@
         "settings": "Settings",
         "users": "Users",
         "mlops": "MLOps & Models",
+        "economics": "Fleet Economics",
         "glossary": "Glossary",
         "online": "Online",
         "logout": "Logout"
@@ -308,5 +309,25 @@
         "anomaly_warning": "Warning: the entered variables generate a critical anomaly",
         "risk_factors": "Risk Factor Changes (SHAP)",
         "waiting": "Waiting for simulator..."
+    },
+    "economics": {
+        "title": "Fleet Economics & ROI",
+        "subtitle": "Financial Impact of Predictive Maintenance",
+        "unplanned_avoided": "Unplanned Downtime Avoided",
+        "unplanned_desc": "Capital saved by predictive alerts",
+        "fleet_value": "Fleet Remaining Value",
+        "fleet_value_desc": "Based on remaining RUL of all engines",
+        "risk_exposure": "Current Risk Exposure",
+        "risk_desc": "Potential imminent loss if unattended",
+        "roi_history": "Return on Investment (ROI) History",
+        "roi_savings": "Savings from Prevention",
+        "roi_cost": "Maintenance Cost",
+        "risk_distribution": "Engine Breakdown (Loss vs RUL)",
+        "engine": "Engine",
+        "rul_remaining": "Remaining RUL",
+        "estimated_value": "Estimated Value",
+        "potential_risk": "Potential Risk",
+        "danger": "Danger",
+        "cycles": "cycles"
     }
 }
